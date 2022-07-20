@@ -54,7 +54,19 @@ parse_response <- function(response) {
 
 #' @importFrom rlang .data
 parse_respondent_list <- function(respondents) {
-  out_resps <- purrr::map_df(respondents, parse_response)
+
+  nc <- parallel::detectCores()
+  cl <- parallel::makeCluster(nc, outfile = "tmp")
+  doParallel::registerDoParallel(cl)
+  parallel::clusterExport(cl = cl, 
+                          varlist = c("parse_page", "parse_answers", "parse_single_answer", "%>%"),
+                          envir = environment())
+  out_resps <- pbapply::pblapply(cl = cl,
+                                 X = respondents,
+                                 parse_response)
+  out_resps <- dplyr::bind_rows(out_resps)
+  parallel::stopCluster(cl)
+  
   if (!"other_id" %in% names(out_resps)) {
     out_resps$other_id <- NA_character_
   }

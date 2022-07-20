@@ -72,7 +72,8 @@ into another stage of its life.
 
 **This version was forked from the TNTP version in July 2022 by Soubhik
 Barari while at Momentive.ai (maker of SurveyMonkey) and optimized for
-internal usage (faster reads, more verbose outputs, etc.).**
+internal usage (e.g., faster reads, more verbose outputs, handling of
+API errors and edge cases, etc.).**
 
 ## Installation
 
@@ -80,7 +81,7 @@ This package is not yet on CRAN. Install from GitHub with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("mattroumaya/surveymonkey")
+devtools::install_github("tgravelle/svmkR")
 ```
 
 ## Usage

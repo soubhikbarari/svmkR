@@ -1,4 +1,4 @@
-#' Take a survey object and parses it into a tidy data.frame.
+#' Take a survey object and parses it into a tidy data.frame (optimized).
 #'
 #' @param surv_obj a survey, the result of a call to \code{fetch_survey_obj}.
 #' @param oauth_token Your OAuth 2.0 token. By default, retrieved from
@@ -12,9 +12,10 @@
 #' @return a data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
 #' @importFrom rlang .data
 #' @export
-parse_survey <- function(
-  surv_obj, oauth_token = get_token(), ...,
-  fix_duplicates = c("error", "drop", "keep")
+parse_survey <- function(surv_obj, 
+                         oauth_token = get_token(), 
+                         ...,
+                         fix_duplicates = c("error", "drop", "keep")
 ) {
   . <- NULL
   if (surv_obj$response_count == 0) {
@@ -22,24 +23,43 @@ parse_survey <- function(
     return(data.frame(survey_id = as.numeric(surv_obj$id)))
   }
 
+  message("+ Getting responses 🎣")
+  time_start <- Sys.time()
   respondents <- get_responses(surv_obj$id, oauth_token = oauth_token, ...)
-
+  time_end <- Sys.time()
+  time_taken <- time_end - time_start
+  print(time_taken)
+  
   # Save response status to join later
+  message("+ Merging responses 🤝")
   vals <- c("id", "response_status")
   response_status_list <- lapply(respondents, "[", vals)
   status <- do.call(rbind.data.frame, response_status_list)
 
+  message("+ Parsing responses from JSON ⛏")
   responses <- respondents %>%
     parse_respondent_list()
 
   question_combos <- parse_all_questions(surv_obj)
 
+  # SB: if a choice is deleted or added after collection, some responses
+  # may not merge with the present question set; remove these responses
+  if (sum(!(responses$choice_id %in% question_combos$choice_id)) > 0) {
+    message(sprintf("\nRemoving %d responses that don't correspond to existing choices in survey 🛑\n",
+                    sum(!(responses$choice_id %in% question_combos$choice_id))))
+  }
+  responses <- responses %>%
+    filter(choice_id %in% question_combos$choice_id)  
+  
   # this join order matters
   # - putting q_combos on left yields the right ordering of columns in final result
   # the joining variables vary depending on question types present,
   # so can't hard-code. Thus squash message
   x <- suppressMessages(dplyr::full_join(question_combos, responses))
-
+  
+  # SB: remove any question combos that are never entered
+  x <- subset(x, !is.na(response_id))
+ 
   # ref: issue #74
   # assertion stops function from returning anything in the case of duplicates
   # to deal with this add parameter fix_duplicate where default behaviour is to error, but
@@ -52,8 +72,6 @@ parse_survey <- function(
   } else {
     x <- duplicate_drop(x)
   }
-
-
 
   # questions with only simple answer types might not have some referenced columns, #46
   add_if_not_present <- c(choice_id = NA_character_, choice_position = NA_integer_)
@@ -83,36 +101,72 @@ parse_survey <- function(
       TRUE ~ .data$choice_text
     ))
 
-
   # If question type = Multiple Choice, include choice text + ID in the combined new columns
-
-  x$q_unique_id <- apply(
+  message("+ Making unique question IDs 📋")
+  pbar <- utils::txtProgressBar(min=0, max=1, style=3)
+  utils::setTxtProgressBar(pbar, 0)
+  x$q_unique_id <- pbapply(
     x %>%
       dplyr::select(.data$question_id, .data$row_id, .data$col_id, .data$other_id),
     1,
     function(x) paste(stats::na.omit(x), collapse = "_")
   )
+
+  utils::setTxtProgressBar(pbar, 0.5)
   x$q_unique_id[
     x$question_type == "multiple_choice" | x$question_subtype == "multi" & is.na(x$other_id)
   ] <- paste(
-        x$q_unique_id[
-          x$question_type == "multiple_choice" |
-            x$question_subtype == "multi" & is.na(x$other_id)
-        ],
+    x$q_unique_id[
+      x$question_type == "multiple_choice" | x$question_subtype == "multi" & is.na(x$other_id)
+    ],
     x$choice_id[
       x$question_type == "multiple_choice" | x$question_subtype == "multi" & is.na(x$other_id)
     ],
     sep = "_"
   )
-
-  x$combined_q_heading <- apply(
+  utils::setTxtProgressBar(pbar, 1)
+  close(pbar)
+  
+  # SB: explicitly check that payload didn't return multiple answers for 
+  # questions where respondent can only provide single choice
+  x_dup <- x %>% 
+    dplyr::filter(.data$question_type == "single_choice" | .data$question_subtype == "single") %>%
+    dplyr::group_by(.data$response_id, .data$q_unique_id) %>%
+    dplyr::summarise(n_resp = dplyr::n(), .groups = "keep") %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(n_resp > 1)
+  if (nrow(x_dup) > 0) {
+    message(sprintf("De-duping %d responses to single-choice questions 🛑",
+                    nrow(x_dup)))
+    
+    x_dup <- x_dup %>% 
+      dplyr::left_join(x %>%
+                         dplyr::select(.data$response_id, .data$q_unique_id, .data$choice_id), 
+                       by = c("response_id", "q_unique_id")) %>%
+      dplyr::group_by(.data$response_id, .data$q_unique_id) %>%
+      dplyr::filter(dplyr::row_number() == 1)
+    
+    x <- x %>%
+      dplyr::anti_join(x_dup, by = c("response_id", "q_unique_id", "choice_id"))
+  }
+  
+  message("+ Making combined question headings 📋")
+  pbar <- utils::txtProgressBar(min=0, max=1, style=3)
+  utils::setTxtProgressBar(pbar, 0)  
+  # x <- x %>% ###SB: unwrap lapply and do in one go
+  #   rowwise() %>% 
+  #   mutate(row_text2 = ifelse(row_text == "", NA, row_text)) %>%
+  #   mutate(combined_q_heading = paste(na.omit(heading, row_text2, col_text, other_text), collapse = "_")) %>%
+  #   select(-row_text2)
+  x$combined_q_heading <- pbapply(
     x %>%
       dplyr::select(.data$heading, .data$row_text, .data$col_text, .data$other_text) %>%
       dplyr::mutate(row_text = ifelse(.data$row_text == "", NA, .data$row_text)),
     1,
     function(x) paste(stats::na.omit(x), collapse = " - ")
   )
-
+  utils::setTxtProgressBar(pbar, 0.5)
+  
   x <- x %>%
     dplyr::mutate(
       combined_q_heading = dplyr::case_when(
@@ -126,6 +180,8 @@ parse_survey <- function(
         TRUE ~ .data$combined_q_heading
       )
     )
+  utils::setTxtProgressBar(pbar, 1)
+  close(pbar)
 
   # combine open-response text and choice text into a single field to populate the eventual table
   x$answer <- dplyr::coalesce(x$response_text, x$choice_text)
@@ -146,6 +202,8 @@ parse_survey <- function(
     "combined_q_heading", "answer"
   ))
 
+  message("+ Making wide dataframe ⚡")
+  
   final_x <- x %>%
     dplyr::select(
       tidyselect::all_of(static_vars),
@@ -215,8 +273,26 @@ parse_survey <- function(
       factor(vec, levels = name_set)
     }
   }
+  
+  message("+ Setting factors 🪜")
   out <- purrr::map2_dfc(out, names(out), set_factor_levels)
-
+  
+  if (FALSE) { ###SB: faster parallelization below, but no longer needed 
+    nc <- parallel::detectCores()
+    cl <- parallel::makeCluster(nc, outfile = "tmp")
+    doParallel::registerDoParallel(cl)
+    select <- dplyr::select
+    parallel::clusterExport(cl = cl, 
+                            varlist = c("out", "set_factor_levels", 
+                                        "master_qs", "select", "mutate", 
+                                        "filter", "arrange", "pull", "%>%"))  
+    out2 <- pblapply(cl = cl,
+                     X = names(out), 
+                     function(q_id) set_factor_levels(out[[q_id]], q_id))
+    names(out2) <- names(out)
+    out <- bind_cols(out2)
+  }
+  
   # reset to text names instead of numbers
   # and then re-order to correct columns
   names(out)[(length(static_vars) + 1):length(names(out))] <- qid_text_crosswalk$unique_text[match(
@@ -236,6 +312,7 @@ parse_survey <- function(
       .data$date_created, .data$date_modified, .data$response_status,
       tidyselect::everything()
     )
+  message("DONE 🥳")
   out
 }
 
@@ -252,7 +329,6 @@ de_duplicate_names <- function(x) {
   )
   x
 }
-
 
 # does a data frame contain duplicate rows
 # @param x a data.frame
