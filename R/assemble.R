@@ -49,7 +49,7 @@ parse_survey <- function(surv_obj,
                     sum(!(responses$choice_id %in% question_combos$choice_id))))
   }
   responses <- responses %>%
-    filter(choice_id %in% question_combos$choice_id)  
+    dplyr::filter(.data$choice_id %in% question_combos$choice_id)
   
   # this join order matters
   # - putting q_combos on left yields the right ordering of columns in final result
