@@ -31,7 +31,7 @@ Compared to downloading .csv files manually:
         selected them. These values would be absent from a .csv
         download.
 
-#### Project status
+### Project status
 
 **What’s working:**
 
