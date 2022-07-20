@@ -1,14 +1,17 @@
-Package: surveymonkey
-Title: Fetch survey results from the SurveyMonkey API and turn them into tidy data.frames
-Version: 0.1.0.9000
+Package: svmkR
+Title: Fetch survey results from the SurveyMonkey API and turn them into tidy data.frames in an optimized way.
+Version: 0.1.1
 Authors@R: c(
              person("Matt", "Roumaya", role = c("aut", "cre"), email = "matthewroumaya@gmail.com"),
              person("Sam", "Firke", role = c("aut"), email = "samuel.firke@gmail.com"),
              person("Thomas J.", "Leeper", role = c("aut"), email = "thosjleeper@gmail.com", comment = c(ORCID = "0000-0003-4097-6326")),
-             person("Dustin", "Pashouwer", role = "ctb", email = "dpashouwer@gmail.com"))
-Description: Provides access to the SurveyMonkey API for fetching survey results.
+             person("Dustin", "Pashouwer", role = "ctb", email = "dpashouwer@gmail.com"),
+             person("Soubhik", "Barari", role = c("ctb"), email = "soubhikbarari@gmail.com"),
+             person("Tim", "Gravelle", role = c("ctb"), email = "tgravelle@momentive.ai"))
+Description: Provides access to the SurveyMonkey API for fetching survey results. Fork of Sam Firke / Matt Roumaya's SurveyMonkey package, optimized for internal usage within SurveyMonkey.
 Depends: R (>= 3.5.0)
 Imports: 
+    pbapply,
     assertthat,
     dplyr (>= 0.7.0),
     tidyr (>= 1.0.0),
@@ -20,11 +23,10 @@ Imports:
     tidyselect,
     rlang
 License: MIT + file LICENSE
+Url: https://github.com/tgravelle/svmkR
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2
-URL: https://github.com/mattroumaya/surveymonkey
-BugReports: https://github.com/mattroumaya/surveymonkey/issues
 Suggests: 
     httptest,
     testthat,
