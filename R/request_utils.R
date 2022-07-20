@@ -27,10 +27,10 @@ sm_get = function(url, query, config, ...) {
   )
 
   httr::stop_for_status(out)
-
-    remaining_request_message(out)
-    reset_time_message(out)
-
+  
+  remaining_request_message(out)
+  reset_time_message(out)
+  
   httr::content(out, as = "parsed")
 }
 

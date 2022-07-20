@@ -105,7 +105,7 @@ parse_survey <- function(surv_obj,
   message("+ Making unique question IDs 📋")
   pbar <- utils::txtProgressBar(min=0, max=1, style=3)
   utils::setTxtProgressBar(pbar, 0)
-  x$q_unique_id <- pbapply(
+  x$q_unique_id <- pbapply::pbapply(
     x %>%
       dplyr::select(.data$question_id, .data$row_id, .data$col_id, .data$other_id),
     1,
@@ -158,7 +158,7 @@ parse_survey <- function(surv_obj,
   #   mutate(row_text2 = ifelse(row_text == "", NA, row_text)) %>%
   #   mutate(combined_q_heading = paste(na.omit(heading, row_text2, col_text, other_text), collapse = "_")) %>%
   #   select(-row_text2)
-  x$combined_q_heading <- pbapply(
+  x$combined_q_heading <- pbapply::pbapply(
     x %>%
       dplyr::select(.data$heading, .data$row_text, .data$col_text, .data$other_text) %>%
       dplyr::mutate(row_text = ifelse(.data$row_text == "", NA, .data$row_text)),
