@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# surveymonkey :clipboard: :monkey:
+# `svmkR` :clipboard: :monkey:
 
 <!-- badges: start -->
 
@@ -11,9 +11,12 @@
 status](https://github.com/tntp/surveymonkey/workflows/R-CMD-check/badge.svg)](https://github.com/tntp/surveymonkey)
 <!-- badges: end -->
 
-This package provides access from R to the SurveyMonkey API. You can
-browse your surveys, pick one to fetch, and then, most importantly,
-parse the fetched JSON result into a tidy data.frame.
+This package provides access from R to the SurveyMonkey API. **It is a
+fork of [Sam Firke / Matt Roumaya’s SurveyMonkey R
+package](https://github.com/mattroumaya/surveymonkey), optimized for
+internal usage within SurveyMonkey.** You can browse your surveys, pick
+one to fetch, and then, most importantly, parse the fetched JSON result
+into a tidy data.frame.
 
 ### Why this is useful
 
@@ -45,8 +48,10 @@ an issue or submit a PR to update documentation if permissions change,
 or if you have specific insight about API access based on type of
 account.
 
-**What’s missing:** Some uncommon question types may not yet be
-accounted for. E.g., image or upload question types are untested.
+**What’s missing:**
+
+Some uncommon question types may not yet be accounted for. E.g., image
+or upload question types are untested.
 
 If you have a use case for something that isn’t currently pulled
 through, please open an issue describing your situation & question type.
@@ -64,6 +69,10 @@ working to end the injustice of educational inequality.
 Matt Roumaya took over from TNTP as the de facto maintainer in 2021 and,
 in 2022, became the official maintainer of the package, keeping it going
 into another stage of its life.
+
+**This version was forked from the TNTP version in July 2022 by Soubhik
+Barari while at Momentive.ai (maker of SurveyMonkey) and optimized for
+internal usage (faster reads, more verbose outputs, etc.).**
 
 ## Installation
 
@@ -180,8 +189,8 @@ recipients <- get_recipients(234567890) # use a collector ID retrieved in the pr
 ### Removing HTML tags from column names
 
 If your question text has bold font or other formatting, an HTML tag
-will likely carry through. You can remove any text between “&lt;” and
-“&gt;” with `strip_html()`.
+will likely carry through. You can remove any text between “\<” and “\>”
+with `strip_html()`.
 
 ``` r
 survey_df <- 123456789 %>%
