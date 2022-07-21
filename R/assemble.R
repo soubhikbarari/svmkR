@@ -45,7 +45,7 @@ parse_survey <- function(surv_obj,
   # SB: if a choice is deleted or added after collection, some responses
   # may not merge with the present question set; remove these responses
   if (sum(!(responses$choice_id %in% question_combos$choice_id)) > 0) {
-    message(sprintf("\nRemoving %d responses that don't correspond to existing choices in survey 🛑\n",
+    message(sprintf("\n+ Removing %d responses that don't correspond to existing choices in survey 🛑\n",
                     sum(!(responses$choice_id %in% question_combos$choice_id))))
   }
   responses <- responses %>%
@@ -136,7 +136,7 @@ parse_survey <- function(surv_obj,
     dplyr::ungroup() %>%
     dplyr::filter(n_resp > 1)
   if (nrow(x_dup) > 0) {
-    message(sprintf("De-duping %d responses to single-choice questions 🛑",
+    message(sprintf("+ De-duping %d responses to single-choice questions 🛑",
                     nrow(x_dup)))
     
     x_dup <- x_dup %>% 
@@ -312,7 +312,7 @@ parse_survey <- function(surv_obj,
       .data$date_created, .data$date_modified, .data$response_status,
       tidyselect::everything()
     )
-  message("DONE 🥳")
+  message("\nDONE 🥳\n")
   out
 }
 
