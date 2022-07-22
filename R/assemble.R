@@ -57,8 +57,8 @@ parse_survey <- function(surv_obj,
   # so can't hard-code. Thus squash message
   x <- suppressMessages(dplyr::full_join(question_combos, responses))
   
-  # SB: remove any question combos that are never entered
-  x <- subset(x, !is.na(response_id))
+  # # SB: remove any question combos that are never entered
+  # x <- subset(x, !is.na(response_id))
  
   # ref: issue #74
   # assertion stops function from returning anything in the case of duplicates
