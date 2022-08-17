@@ -1,6 +1,6 @@
 Package: svmkR
 Title: Fetch survey results from the SurveyMonkey API and turn them into tidy data.frames in an optimized way.
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: c(
              person("Matt", "Roumaya", role = c("aut", "cre"), email = "matthewroumaya@gmail.com"),
              person("Sam", "Firke", role = c("aut"), email = "samuel.firke@gmail.com"),

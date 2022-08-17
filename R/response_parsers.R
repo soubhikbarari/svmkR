@@ -68,8 +68,8 @@ parse_respondent_list <- function(respondents) {
     parallel::stopCluster(cl)
   }, error = function(e){
     message("Error in parallel processing ... performing serially.")
-    out_resps <- pbapply::pblapply(respondents,
-                                   parse_response)
+    out_resps <<- pbapply::pblapply(respondents,
+                                    parse_response)
   })
   
   out_resps <- dplyr::bind_rows(out_resps)
