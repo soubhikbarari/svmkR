@@ -57,7 +57,7 @@ parse_respondent_list <- function(respondents) {
 
   tryCatch({
     nc <- parallel::detectCores()
-    cl <- parallel::makeCluster(nc, outfile = "tmp")
+    cl <- parallel::makeCluster(nc)
     doParallel::registerDoParallel(cl)
     parallel::clusterExport(cl = cl, 
                             varlist = c("parse_page", "parse_answers", "parse_single_answer", "%>%"),
