@@ -2,11 +2,12 @@
 % Please edit documentation in R/assemble.R
 \name{parse_survey}
 \alias{parse_survey}
-\title{Take a survey object and parses it into a tidy data.frame.}
+\title{Take a survey object and parses it into a tidy data.frame (optimized).}
 \usage{
 parse_survey(
   surv_obj,
   oauth_token = get_token(),
+  parallel = TRUE,
   ...,
   fix_duplicates = c("error", "drop", "keep")
 )
@@ -16,6 +17,8 @@ parse_survey(
 
 \item{oauth_token}{Your OAuth 2.0 token. By default, retrieved from
 \code{get_token()}.}
+
+\item{parallel}{process respondents in parallel across all available cores?}
 
 \item{...}{additional arguments to pass on to \code{get_responses}.  See the documentation
 \code{?get_responses} where these arguments are listed.}
@@ -28,5 +31,5 @@ will be retained, if 'drop' duplicates will be removed from the results.}
 a data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
 }
 \description{
-Take a survey object and parses it into a tidy data.frame.
+Take a survey object and parses it into a tidy data.frame (optimized).
 }
