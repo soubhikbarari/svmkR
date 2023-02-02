@@ -3,9 +3,9 @@
 #' @param surv_obj a survey, the result of a call to \code{fetch_survey_obj}.
 #' @param oauth_token Your OAuth 2.0 token. By default, retrieved from
 #'  \code{get_token()}.
+#' @param parallel process respondents in parallel across all available cores?  
 #' @param ... additional arguments to pass on to \code{get_responses}.  See the documentation
 #' \code{?get_responses} where these arguments are listed.
-#'
 #' @param fix_duplicates character if 'error', the default detection of duplicate data will result
 #' in an error being raised, otherwise allow the function to return. If 'keep' duplicate results
 #' will be retained, if 'drop' duplicates will be removed from the results.
@@ -14,6 +14,7 @@
 #' @export
 parse_survey <- function(surv_obj, 
                          oauth_token = get_token(), 
+                         parallel = TRUE,
                          ...,
                          fix_duplicates = c("error", "drop", "keep")
 ) {
@@ -37,9 +38,7 @@ parse_survey <- function(surv_obj,
   status <- do.call(rbind.data.frame, response_status_list)
 
   message("+ Parsing responses from JSON ⛏")
-  responses <- respondents %>%
-    parse_respondent_list()
-
+  responses <- parse_respondent_list(respondents, parallel = parallel)
   question_combos <- parse_all_questions(surv_obj)
 
   # SB: if a choice is deleted or added after collection, some responses
@@ -57,8 +56,8 @@ parse_survey <- function(surv_obj,
   # so can't hard-code. Thus squash message
   x <- suppressMessages(dplyr::full_join(question_combos, responses))
   
-  # # SB: remove any question combos that are never entered
-  # x <- subset(x, !is.na(response_id))
+  # SB: remove any question combos that are never entered
+  x <- subset(x, !is.na(response_id))
  
   # ref: issue #74
   # assertion stops function from returning anything in the case of duplicates
