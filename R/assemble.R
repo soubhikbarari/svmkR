@@ -14,7 +14,7 @@
 #' @export
 parse_survey <- function(surv_obj, 
                          oauth_token = get_token(), 
-                         parallel = TRUE,
+                         parallel = FALSE,
                          ...,
                          fix_duplicates = c("error", "drop", "keep")
 ) {
