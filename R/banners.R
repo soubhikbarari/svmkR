@@ -487,7 +487,7 @@ write_banners <- function(banners.output,
       banner.data$weight <- 1
     }
     moe <- simu_moe(banner.data$weight)
-    moe_label <- paste0("Margin of error estimate: ", as.character(plyr::round_any(moe, 0.5, ceiling)), "%")
+    moe_label <- paste0("Margin of error estimate: ", as.character(plyr::round_any(moe*100, 0.5, ceiling)), "%")
   }
   
   writeData <- openxlsx::writeData
