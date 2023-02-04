@@ -29,8 +29,8 @@ Matt Roumaya took over from TNTP as the de facto maintainer in 2021 and,
 in 2022, became the official maintainer of the package, keeping it going
 into another stage of its life.
 
-*This version was forked from the TNTP version in July 2022 by Soubhik
-Barari while at Momentive.ai (maker of SurveyMonkey) and optimized for
+*This version was forked from the TNTP version in July 2022 by [Soubhik
+Barari](soubhikbarari.com) while at Momentive.ai (maker of SurveyMonkey) and optimized for
 internal usage (e.g., faster reads, more verbose outputs, handling of
 API errors and edge cases, etc.).*
 
