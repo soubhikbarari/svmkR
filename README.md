@@ -11,50 +11,9 @@
 status](https://github.com/tntp/surveymonkey/workflows/R-CMD-check/badge.svg)](https://github.com/tntp/surveymonkey)
 <!-- badges: end -->
 
-This package provides access from R to the SurveyMonkey API. **It is a
-fork of [Sam Firke / Matt Roumaya’s SurveyMonkey R
-package](https://github.com/mattroumaya/surveymonkey), optimized for
-internal usage within SurveyMonkey.** You can browse your surveys, pick
-one to fetch, and then, most importantly, parse the fetched JSON result
-into a tidy data.frame.
+This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. As of 1.1.3, `svmkR` includes additional utilities to (1) analyze surveys and (2) create nice banners.
 
-### Why this is useful
-
-Compared to downloading .csv files manually:
-
--   No fussing with the web browser or logging in
--   Column names are handled appropriately - not split over two rows
--   The columns are factors when appropriate, with the levels ordered
-    based on the sequence the answers appear in the survey.
-    -   And they have knowledge of all choices that were offered on the
-        survey, even if they’re missing from the data because no one
-        selected them. These values would be absent from a .csv
-        download.
-
-### Project status
-
-**What’s working:**
-
--   All responses are pulled.
--   All metadata like custom variables and response start/end
-    timestamps.
--   All substantive question types should be currently implemented.
--   Collector and recipient information can be retrieved.
-
-This is confirmed to work for paid plans at the Advantage and Premier
-levels. As of March 2022, it appears that standard & basic (free) plans
-are granted API access with some limitations. Please feel free to open
-an issue or submit a PR to update documentation if permissions change,
-or if you have specific insight about API access based on type of
-account.
-
-**What’s missing:**
-
-Some uncommon question types may not yet be accounted for. E.g., image
-or upload question types are untested.
-
-If you have a use case for something that isn’t currently pulled
-through, please open an issue describing your situation & question type.
+*This is a fork of [Sam Firke / Matt Roumaya’s SurveyMonkey R package](https://github.com/mattroumaya/surveymonkey), optimized for internal usage by the SurveyMonkey Research Insights Team.*
 
 ### Authors
 
@@ -70,10 +29,10 @@ Matt Roumaya took over from TNTP as the de facto maintainer in 2021 and,
 in 2022, became the official maintainer of the package, keeping it going
 into another stage of its life.
 
-**This version was forked from the TNTP version in July 2022 by Soubhik
-Barari while at Momentive.ai (maker of SurveyMonkey) and optimized for
+*This version was forked from the TNTP version in July 2022 by [Soubhik
+Barari](soubhikbarari.com) while at Momentive.ai (maker of SurveyMonkey) and optimized for
 internal usage (e.g., faster reads, more verbose outputs, handling of
-API errors and edge cases, etc.).**
+API errors and edge cases, etc.).*
 
 ## Installation
 
@@ -199,6 +158,27 @@ survey_df <- 123456789 %>%
   parse_survey %>% 
   strip_html
 ```
+
+### Estimating margin of error
+
+There are two (cutely named, if we do say so ourselves) twin functions you can use to estimate [margin of error](https://en.wikipedia.org/wiki/Margin_of_error) (MOE) for your survey.
+
+* Estimate the MOE using an asymptotic formula (`esti_moe`)
+* Simulate the MOE using non-parametric bootstraps (`simu_moe`)
+
+Here's an example using some dummy data included in the package:
+
+```r
+data(auto.evs)
+esti_moe(auto.evs$weight_genpop)
+simu_moe(auto.evs$weight_genpop)
+```
+
+### Making banners
+
+Banners are the bread and butter of the SurveyMonkey Research Insights Team. 
+
+To see how the `svmkR` package can do this, check out `make_banners()` and `write_banners()`.
 
 ## API considerations
 
