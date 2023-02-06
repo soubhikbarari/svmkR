@@ -2,12 +2,26 @@
 % Please edit documentation in R/analysis.R
 \name{simu_moe}
 \alias{simu_moe}
-\title{Simulate the Margin of Error (or "modelled error") for a survey.}
+\title{Simulate the Margin of Error for an overall survey or a single question.}
 \usage{
-simu_moe(weights, conf = 0.95, sims = 5000, random = FALSE)
+simu_moe(
+  .data = NULL,
+  weights = NULL,
+  n = NULL,
+  x = NULL,
+  conf = 0.95,
+  sims = 5000,
+  random = FALSE
+)
 }
 \arguments{
-\item{weights}{vector of sample weights used to adjust the sample.}
+\item{.data}{data frame to optionally pipe in \code{dplyr}-style (see example).}
+
+\item{weights}{vector of sample weights used to adjust the sample (optional if \code{n} or \code{x} is specified).}
+
+\item{n}{the sample size of the suvrey (not needed if \code{weights} or \code{x} is specified).}
+
+\item{x}{the particular question to estimate margin of error for (if not specified, estimate the survey's MOE instead).}
 
 \item{conf}{the level of statistical confidence to estimate the error.}
 
@@ -16,18 +30,42 @@ simu_moe(weights, conf = 0.95, sims = 5000, random = FALSE)
 \item{random}{whether or not to return different, random estimates every time.}
 }
 \value{
-the survey margin of error (SMOE) or "modeled error" for the overall survey.
+The survey margin of error (MOE) or "modeled error" for the overall survey or question of interest.
 }
 \description{
-Given weights and a sample size, the Modeled Error gives us the upper bound on the margin of error
-for all y/n questions across the entire survey -- by estimating it
-for a hypothetical y/n question with 50/50% split in the population (the inherently
-most uncertain population estimand).
+For the overall survey: given weights and/or a sample size, the 
+Maximum Margin of Error gives us the upper bound on the margin of error for all y/n questions across 
+the entire survey -- by estimating it for a hypothetical y/n question with 50/50% split in the population 
+(the inherently most uncertain population estimand).
 }
 \details{
+For a single question: given a vector of sample responses and/or weights, the Margin of Error
+estimates the margin of error by simulating the sampling distribution.
+
 Estimates via simulation tend to be more conservative (larger) than 
 using the formulaic margin of error (\code{est_modeled_error}) as it incorporates 
 more variance from the weights. 
 
 This method is recommended for non-probability surveys with unknown sampling mechanisms (e.g. river samples).
+}
+\examples{
+
+data(auto.evs)
+if (FALSE) { ## not run
+
+# Unweighted maximum margin of error
+simu_moe(n = nrow(auto.evs))
+simu_moe(weights = rep(1, nrow(auto.evs)))
+
+# Weighted maximum margin of error
+simu_moe(weights = auto.evs$weight_genpop)
+
+# Unweighted margin of error for specific question
+simu_moe(x = auto.evs$ev_heard_1)
+
+# Weighted margin of error for specific question
+auto.evs \%>\%
+  filter(!is.na(weight_genpop)) \%>\%
+  simu_moe(x = ev_heard_1, weights = weight_genpop)
+}
 }
