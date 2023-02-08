@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `svmkR` :clipboard: :monkey:
+# svmkR: Tools for SurveyMonkey Surveys in R :clipboard: :monkey:
 
 <!-- badges: start -->
 
