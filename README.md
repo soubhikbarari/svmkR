@@ -5,8 +5,6 @@
 
 This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. As of 1.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create nice banners.
 
-*This is a fork of [Sam Firke / Matt Roumaya’s SurveyMonkey R package](https://github.com/mattroumaya/surveymonkey), optimized for internal usage by the SurveyMonkey Research Insights Team.*
-
 ### Authors
 
 The [first version of this package](https://github.com/cloudyr/Rmonkey)
