@@ -3,15 +3,7 @@
 
 # svmkR: Tools for SurveyMonkey Surveys in R :clipboard: :monkey:
 
-<!-- badges: start -->
-
-[![codecov.io](https://codecov.io/github/tntp/surveymonkey/coverage.svg?branch=master)](https://codecov.io/github/tntp/surveymonkey?branch=master)
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![R build
-status](https://github.com/tntp/surveymonkey/workflows/R-CMD-check/badge.svg)](https://github.com/tntp/surveymonkey)
-<!-- badges: end -->
-
-This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. As of 1.1.3, `svmkR` includes additional utilities to (1) analyze surveys and (2) create nice banners.
+This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. As of 1.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create nice banners.
 
 *This is a fork of [Sam Firke / Matt Roumaya’s SurveyMonkey R package](https://github.com/mattroumaya/surveymonkey), optimized for internal usage by the SurveyMonkey Research Insights Team.*
 
