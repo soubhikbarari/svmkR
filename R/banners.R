@@ -165,7 +165,12 @@ make_banners <- function(data,
       } else {
         c.type <- "vars_list"
         lazy_tab_cols <- function(.) expss::tab_cols(., total(), vars_list(cc))
-      }      
+      }
+      
+      if (is.null(weight.var)) {
+        weight.var <- "weight"
+        data$weight <- 1
+      }
       
       banner.table.r.c <- data %>%
         dplyr::rename_at(weight.var, ~"weight") %>%
