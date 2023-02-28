@@ -484,7 +484,7 @@ write_banners <- function(banners.output,
   moe_label <- ""
   if (include.moe) {
     message("+ Calculating margin of error")
-    if (!("weight.var" %in% names(banners.output))) {
+    if (!("weight.var" %in% names(banners.output)) & !is.null(banners.output$weight.var)) {
       if (banners.output$weight.var %in% colnames(banner.data)) {
         banner.data$weight <- banner.data[[banners.output$weight.var]]
       } else if (!is.null(weight.var) & weight.var %in% colnames(banner.data)) {
@@ -495,6 +495,9 @@ write_banners <- function(banners.output,
     } else {
       banner.data$weight <- 1
     }
+    moe <- simu_moe(banner.data$weight)
+    moe_label <- paste0("Margin of error estimate: ", as.character(plyr::round_any(moe*100, 0.5, ceiling)), "%")
+  }
   
   writeData <- openxlsx::writeData
   
