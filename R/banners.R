@@ -183,6 +183,13 @@ make_banners <- function(data,
         expss::tab_pivot() %>%
         dplyr::as_tibble(.name_repair = c("minimal"))
       
+      if (!any(grepl("\\|", banner.table.r.c$row_labels))) {
+        banner.table.r.c$row_labels <- paste0(rr[1], "|", banner.table.r.c$row_labels)
+      }
+      if (!any(grepl("\\|", colnames(banner.table.r.c)))) {
+        colnames(banner.table.r.c)[3:ncol(banner.table.r.c)] <- paste0(cc[1], "|", colnames(banner.table.r.c)[3:ncol(banner.table.r.c)])
+      }
+ 
       if (is.null(banner.table.r)) {
         banner.table.r <- banner.table.r.c
       } else {
