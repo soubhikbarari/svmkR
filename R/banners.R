@@ -247,13 +247,10 @@ make_banners <- function(data,
     dplyr::filter(dplyr::row_number() == 1) %>%
     tidyr::pivot_longer(cols = tidyselect::everything()) %>%
     dplyr::select(name) %>%
-    dplyr::mutate(top = (stringr::str_split_fixed(name, "\\|", n = 2))[,1]) %>%
-    dplyr::mutate(bot = (stringr::str_split_fixed(name, "\\|", n = 2))[,2]) %>%
-    dplyr::mutate(bot = dplyr::case_when(
-      bot == "" ~ top,
-      TRUE ~ bot
-    )) %>%
-    dplyr::select(top, bot) 
+    dplyr::mutate(top = (stringr::str_split_fixed(name, "\\|", n = 3))[,1]) %>%
+    dplyr::mutate(mid = (stringr::str_split_fixed(name, "\\|", n = 3))[,2]) %>%
+    dplyr::mutate(bot = (stringr::str_split_fixed(name, "\\|", n = 3))[,3]) %>%
+    dplyr::select(top, mid, bot)
   
   col.headers <- do.call(rbind, c(col.headers)) %>%
     dplyr::as_tibble(., .name_repair = "minimal")
@@ -299,7 +296,7 @@ make_banners <- function(data,
 
 #' Format and save banner object to file / Google Drive.
 #' 
-#' Take the output from a call to \code{make_banners}, populate a spreadsheet with the banner data, format/stylize it in the SurveyMonkey research format, and save it locally and/or to a Google Drive folder.
+#' Take the output from a call to \code{make_banners}, populate a spreadsheet with the banner data, format/stylize it in the SurveyMonkey research format, and save it locally and/or to a Google Drive folder. Currently allows for up to one level of nesting in columns.
 #'
 #' @param banners.output output list from a call to \code{make_banners()}.
 #' @param title title of the tab/sheet.
@@ -514,20 +511,32 @@ write_banners <- function(banners.output,
   if (logo == "mntv")
     openxlsx::insertImage(wb, sheet = tab.name, file=system.file("extdata", "mntv.png", package = "svmkR"), startRow=1, startCol=1, width=3.5, height=0.5)
   message(sprintf("+ Formatting tab `%s`", tab.name))
-  openxlsx::writeData(wb, sheet = tab.name, banner.data.frame, startRow = 6, startCol = 1)
-  openxlsx::writeData(wb, sheet = tab.name, col.headers, startRow = 5, startCol = 1, colNames = FALSE)
+
   openxlsx::writeData(wb, sheet = tab.name, title, startRow = 1, startCol = 4)
   openxlsx::writeData(wb, sheet = tab.name, date_label, startRow = 2, startCol = 4)
   openxlsx::writeData(wb, sheet = tab.name, moe_label, startRow = 3, startCol = 4)
   
+  ## Allow for two layers of nesting
+  if (all(col.headers[3,] == "")) {
+    col.headers <- col.headers[1:2,]
+    row_offset <- 6
+    col_nested <- F
+  } else {
+    row_offset <- 7
+    col_nested <- T
+  }
+  openxlsx::writeData(wb, sheet = tab.name, banner.data.frame, startRow = 7, startCol = 1)
+  openxlsx::writeData(wb, sheet = tab.name, col.headers, startRow = 5, startCol = 1, colNames = FALSE)
+
+  
   # Row Labels
   message("+ Merging row labels")
   for(i in 1:nrow(row.questions)) {
-    start <- 6 + (row.questions %>%
+    start <- row_offset + (row.questions %>%
                     dplyr::filter(dplyr::row_number() == i) %>%
                     dplyr::select(row_start) %>%
                     dplyr::pull())
-    end <- 6 + (row.questions %>%
+    end <- row_offset + (row.questions %>%
                   dplyr::filter(dplyr::row_number() == i) %>%
                   dplyr::select(row_end) %>%
                   dplyr::pull())
@@ -546,17 +555,30 @@ write_banners <- function(banners.output,
                   dplyr::select(col_end) %>%
                   dplyr::pull())
     openxlsx::mergeCells(wb, sheet = tab.name, cols = start:end, rows = 5)
+    if (col_nested) {
+      for (j in col.questions$col_start[i]:col.questions$col_end[i]) {
+        ### merge bottom label with middle label if no nested value is there
+        if (col.headers[3,j] == "") {
+          openxlsx::mergeCells(wb, sheet = tab.name, cols = j, rows = 6:7)
+        }
+      }
+      
+    }
   }
   # Style Header
   message("+ Styling header")
   openxlsx::setColWidths(wb, sheet = tab.name, col = 1:2, c(24, 32))
   openxlsx::setColWidths(wb, sheet = tab.name, col = 3:(max(col.questions$col_end)), 10)
   
-  openxlsx::addStyle(wb, sheet = tab.name, rows = (6 + min(row.questions$row_start)):(6 + max(row.questions$row_end)), cols = 1,
+  openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset + min(row.questions$row_start)):(row_offset + max(row.questions$row_end)), cols = 1,
                      style = wrap_top, stack = TRUE)
-  openxlsx::addStyle(wb, sheet = tab.name, rows = 5, cols = 3:(max(col.questions$col_end)),
+  if (col_nested) {
+    openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset-2), cols = 3:(max(col.questions$col_end)),
+                       style = bold_wrap_center, stack = TRUE)    
+  }
+  openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset-1), cols = 3:(max(col.questions$col_end)),
                      style = bold_wrap_center, stack = TRUE)
-  openxlsx::addStyle(wb, sheet = tab.name, rows = 6, cols = 3:(max(col.questions$col_end)),
+  openxlsx::addStyle(wb, sheet = tab.name, rows = row_offset, cols = 3:(max(col.questions$col_end)),
                      style = bold_wrap_center, stack = TRUE)
   openxlsx::addStyle(wb, sheet = tab.name, rows = 1:3, cols = 1,
                      style = bold_red_bottom, stack = TRUE)
@@ -567,7 +589,7 @@ write_banners <- function(banners.output,
   if (banner.settings$total.row.position %in% c("below","above")) {
     message("+ Styling totals")
     for(i in 1:nrow(row.questions)) {
-      start <- 6 + (row.questions %>%
+      start <- row_offset + (row.questions %>%
                       dplyr::filter(dplyr::row_number() == i) %>% {
                         if (banner.settings$total.row.position == "above")
                           dplyr::select(., row_start)
@@ -610,9 +632,9 @@ write_banners <- function(banners.output,
               dplyr::select(row_end) %>%
               dplyr::pull())
     if (banner.settings$total.row.position == "above") {
-      start <- start + 7; end <- end + 6;
+      start <- start + (row_offset+1); end <- end + row_offset;
     } else if (banner.settings$total.row.position == "below") {
-      start <- start + 6; end <- end + 5;
+      start <- start + row_offset; end <- end + (row_offset-1);
     }
     
     ## colorize percentages
@@ -640,11 +662,11 @@ write_banners <- function(banners.output,
   openxlsx::deleteData(wb, sheet = tab.name, rows = 5, cols = 2)
   openxlsx::deleteData(wb, sheet = tab.name, rows = 6, cols = 2)
   openxlsx::deleteData(wb, sheet = tab.name, rows = 5, cols = 3)
-  openxlsx::addStyle(wb, sheet = tab.name, rows = 4:(6 + max(row.questions$row_end)), cols = 1:(max(col.questions$col_end)),
+  openxlsx::addStyle(wb, sheet = tab.name, rows = 4:(row_offset + max(row.questions$row_end)), cols = 1:(max(col.questions$col_end)),
                      style = border_bottom, gridExpand = TRUE, stack = TRUE)
-  openxlsx::addStyle(wb, sheet = tab.name, rows = 5:(6 + max(row.questions$row_end)), cols = 1:(max(col.questions$col_end)),
+  openxlsx::addStyle(wb, sheet = tab.name, rows = 5:(row_offset + max(row.questions$row_end)), cols = 1:(max(col.questions$col_end)),
                      style = border_right, gridExpand=TRUE, stack = TRUE)
-  openxlsx::freezePane(wb, sheet = tab.name, firstActiveRow = 7, firstActiveCol = 4)
+  openxlsx::freezePane(wb, sheet = tab.name, firstActiveRow = row_offset+1, firstActiveCol = 4)
   
   # Save
   if (!is.null(file.path)) {
