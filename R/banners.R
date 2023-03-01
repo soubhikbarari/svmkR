@@ -525,7 +525,7 @@ write_banners <- function(banners.output,
     row_offset <- 7
     col_nested <- T
   }
-  openxlsx::writeData(wb, sheet = tab.name, banner.data.frame, startRow = 7, startCol = 1)
+  openxlsx::writeData(wb, sheet = tab.name, banner.data.frame, startRow = row_offset, startCol = 1)
   openxlsx::writeData(wb, sheet = tab.name, col.headers, startRow = 5, startCol = 1, colNames = FALSE)
 
   
