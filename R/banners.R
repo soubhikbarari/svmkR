@@ -189,7 +189,7 @@ make_banners <- function(data,
       if (!any(grepl("\\|", colnames(banner.table.r.c)))) {
         colnames(banner.table.r.c)[3:ncol(banner.table.r.c)] <- paste0(cc[1], "|", colnames(banner.table.r.c)[3:ncol(banner.table.r.c)])
       }
- 
+      
       if (is.null(banner.table.r)) {
         banner.table.r <- banner.table.r.c
       } else {
@@ -446,8 +446,8 @@ write_banners <- function(banners.output,
   border_bottom    <- openxlsx::createStyle(border="bottom")
   border_right     <- openxlsx::createStyle(border="right")
   bold_red_bottom  <- openxlsx::createStyle(textDecoration="bold", fontColour="red", valign="bottom")
-  percentage       <- openxlsx::createStyle(numFmt="0.0%", halign="center")
-  integer          <- openxlsx::createStyle(numFmt = "0", halign="center")  
+  percentage       <- openxlsx::createStyle(numFmt="0%", halign="center")
+  integer          <- openxlsx::createStyle(numFmt="0", halign="center")  
   
   # Data
   banner.data <- banners.output$banner.data
