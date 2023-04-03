@@ -30,7 +30,7 @@ This package is not yet on CRAN. Install from GitHub with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("tgravelle/svmkR")
+devtools::install_github("soubhikbarari/svmkR")
 ```
 
 ## Usage
