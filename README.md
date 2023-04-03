@@ -7,6 +7,11 @@ This package provides access from R to the SurveyMonkey API. You can browse your
 
 ### Authors
 
+**This version was forked from the TNTP version in July 2022 by [Soubhik
+Barari](soubhikbarari.com) while at Momentive.ai (maker of SurveyMonkey) and optimized for
+internal usage (e.g., faster reads, more verbose outputs, handling of
+API errors and edge cases, etc.).**
+
 The [first version of this package](https://github.com/cloudyr/Rmonkey)
 was written by Thomas Leeper. It worked with version 2 of the
 SurveyMonkey API.
@@ -18,11 +23,6 @@ working to end the injustice of educational inequality.
 Matt Roumaya took over from TNTP as the de facto maintainer in 2021 and,
 in 2022, became the official maintainer of the package, keeping it going
 into another stage of its life.
-
-*This version was forked from the TNTP version in July 2022 by [Soubhik
-Barari](soubhikbarari.com) while at Momentive.ai (maker of SurveyMonkey) and optimized for
-internal usage (e.g., faster reads, more verbose outputs, handling of
-API errors and edge cases, etc.).*
 
 ## Installation
 
