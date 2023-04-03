@@ -3,7 +3,7 @@
 
 <img src="hex.png" align="right" style="height: 128px; margin-left: 4px;"/>
 
-This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. As of 1.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create nice banners.
+This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. As of 1.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create presentable banners for polls.
 
 ### Authors
 
