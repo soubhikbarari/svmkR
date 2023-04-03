@@ -151,7 +151,7 @@ survey_df <- 123456789 %>%
 
 ### Estimating margin of error
 
-There are two (cutely named, if we do say so ourselves) twin functions you can use to estimate [margin of error](https://en.wikipedia.org/wiki/Margin_of_error) (MOE) for your survey.
+There are two twin functions you can use to estimate [margin of error](https://en.wikipedia.org/wiki/Margin_of_error) (MOE) for your survey.
 
 * Estimate the MOE using an asymptotic formula (`esti_moe`)
 * Simulate the MOE using non-parametric bootstraps (`simu_moe`)
