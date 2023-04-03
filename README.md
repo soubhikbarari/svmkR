@@ -7,7 +7,7 @@ This package provides access from R to the SurveyMonkey API. You can browse your
 
 ### Authors
 
-**This version was forked from the TNTP version in July 2022 by [Soubhik
+**This version was forked from the previous version in July 2022 by [Soubhik
 Barari](soubhikbarari.com) while at Momentive.ai (maker of SurveyMonkey) and optimized for
 internal usage (e.g., faster reads, more verbose outputs, handling of
 API errors and edge cases, etc.).**
