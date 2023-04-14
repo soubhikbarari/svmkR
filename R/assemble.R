@@ -87,9 +87,24 @@ parse_survey <- function(surv_obj,
     return(dplyr::bind_cols(record))
   })
   
-  message("+ Merging and responses 🤝")
+  message("+ Merging responses 🤝")
   
   records <- dplyr::bind_rows(recordsList)
+  
+  for (q in rev(names(surv_obj$questions))) {
+    if (col_names == "id") {
+      cols <- colnames(records)[grepl(q, colnames(records))]
+      if (length(cols) > 0) {
+        records <- dplyr::relocate(records, cols)
+      }
+    } else {
+      cols <- labels[startsWith(labels, q)]
+      if (length(cols) > 0) {
+        records <- dplyr::relocate(records, cols)
+      }      
+    }
+  }
+  
   records <- dplyr::relocate(records, c("collector_id",
                                         "collection_mode",
                                         "response_id",
@@ -100,6 +115,7 @@ parse_survey <- function(surv_obj,
                                         "last_name",
                                         "email_address",
                                         "ip_address"))
+  
 
   colnames(records) <- gsub("  ", " ", colnames(records))
   
@@ -123,7 +139,7 @@ parse_survey <- function(surv_obj,
         base::levels(records[[col.var]]) <- col.levels
       }
     }
-  }  
+  }
   
   message("+ Labelling columns 🗂")
 
