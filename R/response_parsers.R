@@ -1,101 +1,91 @@
-parse_single_answer <- function(answer) {
-  # remove length-zero items as an initial fix to #38;
-  if (!is.null(answer$tag_data)) {
-    answer$tag_data <- NULL
-  }
-
-  dplyr::bind_rows(answer)
+is_numeric <- function(.) {
+  suppressWarnings(!is.na(as.numeric(.)))
 }
 
-parse_answers <- function(question) {
-  out_a <- purrr::map_df(question$answers, parse_single_answer) %>%
-    dplyr::mutate(question_id = question$id)
-
-  out_a
-}
-
-parse_page <- function(page) {
-  purrr::map_df(page$questions, parse_answers)
-}
-
-parse_response <- function(response) {
-  . <- NULL
-  out <- purrr::map_df(response$pages, parse_page) %>%
-    dplyr::mutate(
-      response_id = response$id,
-      collector_id = response$collector_id,
-      survey_id = response$survey_id,
-      date_created = as.POSIXct(response$date_created, tz = "UTC", format = "%Y-%m-%dT%H:%M:%OS"),
-      date_modified = as.POSIXct(response$date_modified, tz = "UTC", format = "%Y-%m-%dT%H:%M:%OS"),
-      recipient_id = dplyr::if_else(
-        response$recipient_id == "",
-        NA_character_,
-        response$recipient_id
-      )
-    )
-
-  if (length(response$ip_address) > 0 & response$ip_address != "") {
-    out$ip_address <- response$ip_address
-  }
-  if (length(response$custom_variables) > 0) {
-    out <- merge(out, dplyr::bind_rows(response$custom_variables))
-  }
-  if (length(response$metadata) > 0 & sum(vapply(response$metadata, length, 1)) > 0) {
-    metdata_vars <- unlist(response$metadata)
-    metdata_vars <- metdata_vars[grepl(".value$", names(metdata_vars))]
-    metdata_vars_df <- dplyr::bind_rows(metdata_vars)
-    names(metdata_vars_df) <- names(metdata_vars_df) %>%
-      gsub("^[A-z]+\\.", "", .) %>%
-      gsub(".value$", "", .)
-    out <- merge(out, metdata_vars_df)
-  }
+make_output_named <- function(question_text, answer_text) {
+  out <- list(answer_text)
+  names(out) <- question_text
   out
 }
 
-#' @importFrom rlang .data
-parse_respondent_list <- function(respondents, parallel = TRUE) {
+make_output_id <- function(col_id, answer_text) {
+  out <- list(answer_text)
+  names(out) <- col_id
+  out
+}
 
-  if (parallel) {
-    nc <- parallel::detectCores()
-    cl <- parallel::makeCluster(nc, outfile = "tmp")
-    doParallel::registerDoParallel(cl)
-    parallel::clusterExport(cl = cl, 
-                            varlist = c("parse_page", "parse_answers", "parse_single_answer", "%>%"),
-                            envir = environment())
-    out_resps <- pbapply::pblapply(cl = cl,
-                                   X = respondents,
-                                   parse_response)
-    out_resps <- dplyr::bind_rows(out_resps)
-    parallel::stopCluster(cl)
+process_matrix <- function(surv_obj, question) {
+  question_id <- question$id
+  family <- surv_obj$families[[question_id]]
+  out_named <- list()
+  out_id <- list()
+  for (answer in question$answers) {
+    question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$row_id]])
+    col_id = paste0(question_id, "_", answer$row_id)
+    answer_text = surv_obj$answers[[answer$choice_id]]
+    out_named[[question_text]] <- answer_text
+    out_id[[col_id]] <- answer_text    
+  }
+  return(list(name=out_named, id=out_id))
+}
+
+process_multiple_choice <- function(surv_obj, question) {
+  question_id <- question$id
+  family <- surv_obj$families[[question_id]]
+  out_named <- list()
+  out_id <- list()  
+  for (answer in question$answers) {
+    if ("other_id" %in% names(answer)) {
+      question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$other_id]])
+      col_id = paste0(question_id, "_", answer$other_id)
+      answer_text = answer$text
+    } else {
+      answer_text = surv_obj$answers[[answer$choice_id]]
+      question_text = paste0(surv_obj$questions[[question_id]], " - ", answer_text)
+      col_id = paste0(question_id, "_", answer$choice_id)
+    }
+    out_named[[question_text]] <- answer_text
+    out_id[[col_id]] <- answer_text
+  }
+  return(list(name=out_named, id=out_id))
+}
+
+process_single_choice <- function(surv_obj, question) {
+  question_id <- question$id
+  family <- surv_obj$families[[question_id]]  
+  answer <- question$answers[[1]]
+  if ("other_id" %in% names(answer)) {
+    question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$other_id]])
+    col_id = paste0(question_id, "_", answer$other_id)
+    answer_text = answer$text
+  } else if ((length(answer[[1]]) == 9 & is_numeric(answer[[1]])) | (answer[[1]] %in% names(surv_obj$answers))) {
+    question_text = surv_obj$questions[[question_id]]
+    col_id = question_id
+    answer_text = surv_obj$answers[[answer[[1]]]]
   } else {
-    out_resps <- pbapply::pblapply(respondents, parse_response)
-    out_resps <- dplyr::bind_rows(out_resps)
+    question_text = surv_obj$questions[[question_id]]
+    col_id = question_id    
+    answer_text = answer[[1]]
   }
-  
-  if (!"other_id" %in% names(out_resps)) {
-    out_resps$other_id <- NA_character_
-  }
-  if (!"text" %in% names(out_resps)) {
-    out_resps$text <- NA_character_
-  }
-  if (!"row_id" %in% names(out_resps)) {
-    out_resps$row_id <- NA_character_
-  }
-  if (!"col_id" %in% names(out_resps)) {
-    out_resps$col_id <- NA_character_
-  }
+  return(list(name = make_output_named(question_text=question_text, answer_text=answer_text),
+              id = make_output_id(col_id=col_id, answer_text=answer_text)))
+}
 
-  out_resps <- out_resps %>%
-    dplyr::rename(response_text = .data$text) %>%
-    dplyr::select(
-      .data$survey_id, .data$collector_id, .data$recipient_id, .data$response_id,
-      tidyselect::everything()
-    ) %>%
-    dplyr::mutate(survey_id = as.numeric(.data$survey_id))
+process_open_ended <- function(surv_obj, question) {
+  question_id = question$id
+  col_id = question_id
+  family = surv_obj$families[[question_id]]  
+  answer_text = question$answers[[1]]$text
+  question_text = surv_obj$questions[[question_id]]
+  return(list(name = make_output_named(question_text=question_text, answer_text=answer_text),
+              id = make_output_id(col_id=col_id, answer_text=answer_text)))
+}
 
-  if (all(is.na(out_resps$recipient_id))) {
-    out_resps$recipient_id <- NULL
-  }
-
-  out_resps
+process_datetime <- function(surv_obj, question) {
+  question_id = question$id
+  col_id = question_id  
+  family = surv_obj$families[[question_id]]  
+  question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[question$answers[[1]]$row_id]])
+  answer_text = question$answers[[1]]$text  
+  return(make_output_named(question_text=question_text, answer_text=answer_text))
 }

@@ -1,6 +1,6 @@
 Package: svmkR
 Title: Fetch survey results from the SurveyMonkey API and turn them into tidy data.frames in an optimized way. Included are additional utilities used by the SurveyMonkey Research Insights Team for survey processing, weighting, and banner creation.
-Version: 0.1.8
+Version: 0.2
 Authors@R: c(
              person("Matt", "Roumaya", role = c("aut", "cre"), email = "matthewroumaya@gmail.com"),
              person("Sam", "Firke", role = c("aut"), email = "samuel.firke@gmail.com"),
