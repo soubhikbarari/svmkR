@@ -35,7 +35,6 @@ parse_survey <- function(surv_obj,
   
   labels <- list()
   recordsList <- pbapply::pblapply(1:length(respondents), function(r) {
-    print(r)
     response <- respondents[[r]]
     pages <- respondents[[r]]$pages
     record <- list()
