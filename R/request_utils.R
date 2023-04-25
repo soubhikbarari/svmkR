@@ -57,12 +57,15 @@ sm_get = function(url, query, config, ...) {
     ...
   )
 
-  httr::stop_for_status(out)
-  
   remaining_request_message(out)
   reset_time_message(out)
   
-  httr::content(out, as = "parsed")
+  out.parsed = httr::content(out, as = "parsed")
+  if ("error" %in% names(out.parsed)) {
+    stop(jsonlite::toJSON(out.parsed, pretty=TRUE))
+  } else {
+    out.parsed
+  }
 }
 
 remaining_request_message = function(response) {
