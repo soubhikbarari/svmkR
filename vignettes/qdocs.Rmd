@@ -21,6 +21,10 @@ There are three ways to write a questionnaire up as a QDOC:
 
 <!-- BOOKMARK: give examples of each question type and variations across formats -->
 
+# QDOC Tags
+
+
+
 # Question Types
 
 ## Multiple Choice
