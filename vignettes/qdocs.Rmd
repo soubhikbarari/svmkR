@@ -1,0 +1,37 @@
+---
+title: "Introducing QDOC: A Flexible Text Format for (Q)uestionnaire (Doc)uments"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{qdocs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+**QDOC is a flexible format for your survey questionnaire document that uses tags to allow it to easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.**
+
+There are three ways to write a questionnaire up as a QDOC:
+
+- There is a **simple format** for plain-text files that resembles how you might normally write survey questions (i.e. not explicitly writing out each type), but leaves less flexibility for multi-line question choices.
+
+- There is an **advanced format** for plain-text files that requires more specificity (e.g. what type of question each question is, where the heading ends and the choices begin, delineate each choice), but leaves less room for error in parsing.
+
+- There is a **Google Doc format** for Google Doc documents that largely resembles the simple format, but takes advantage of indented lists to unambiguously structure question choices, rows, columns, etc.
+
+<!-- BOOKMARK: give examples of each question type and variations across formats -->
+
+# Question Types
+
+## Multiple Choice
+
+
+## Multiple Choice
+
+
+## Matrix
+
+
+## Open Ended
+
+
