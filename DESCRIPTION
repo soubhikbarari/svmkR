@@ -1,14 +1,8 @@
 Package: svmkR
-Title: Fetch survey results from the SurveyMonkey API and turn them into tidy data.frames in an optimized way. Included are additional utilities used by the SurveyMonkey Research Insights Team for survey processing, weighting, and banner creation.
-Version: 0.2
-Authors@R: c(
-             person("Matt", "Roumaya", role = c("aut", "cre"), email = "matthewroumaya@gmail.com"),
-             person("Sam", "Firke", role = c("aut"), email = "samuel.firke@gmail.com"),
-             person("Thomas J.", "Leeper", role = c("aut"), email = "thosjleeper@gmail.com", comment = c(ORCID = "0000-0003-4097-6326")),
-             person("Dustin", "Pashouwer", role = "ctb", email = "dpashouwer@gmail.com"),
-             person("Soubhik", "Barari", role = c("ctb"), email = "soubhikbarari@gmail.com"),
-             person("Tim", "Gravelle", role = c("ctb"), email = "tgravelle@momentive.ai"))
-Description: Provides access to the SurveyMonkey API for fetching survey results. Fork of Sam Firke / Matt Roumaya's SurveyMonkey package, optimized for internal usage within SurveyMonkey.
+Title: Tools to make, download, and analyze surveys using the SurveyMonkey API. Included are additional utilities used by the SurveyMonkey Research Insights Team for survey processing, weighting, and banner creation.
+Version: 0.2.1
+Authors@R: c(person("Soubhik", "Barari", role = c("aut", "cre"), email = "sbarari@momentive.ai"))
+Description: Provides access to the SurveyMonkey API for fetching survey results.
 Depends: R (>= 3.5.0)
 Imports: 
     pbapply,
@@ -28,11 +22,14 @@ Imports:
     tidyselect,
     rlang
 License: MIT + file LICENSE
-Url: https://github.com/tgravelle/svmkR
+Url: https://github.com/soubhikbarari/svmkR
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.1
 Suggests: 
     httptest,
+    knitr,
+    rmarkdown,
     testthat,
     withr
+VignetteBuilder: knitr
