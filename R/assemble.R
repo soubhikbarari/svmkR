@@ -10,14 +10,16 @@
 #'   \item '\{question heading\} - \{matrix row\}'
 #'   \item '\{question heading\} - \{matrix row\} - \{matrix column\}'
 #' }
+#' @param col_fill For the columns extracted from a multi-select question, how to fill in values. Choices are either TRUE or "name" denoting the name of each question choice. Default is TRUE.
 #' @param ... Additional arguments to pass on to \code{get_responses}.  See the documentation
 #' \code{?get_responses} where these arguments are listed.
 #' @return A data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
 #' @importFrom rlang .data
 #' @export
 parse_survey <- function(surv_obj, 
-                         oauth_token = get_token(), 
+                         oauth_token = get_token(),
                          col_names = "id",
+                         col_fill = TRUE,
                          ...
 ) {
   . <- NULL
@@ -29,6 +31,10 @@ parse_survey <- function(surv_obj,
     stop("Must pass either 'id' or 'name' to col_names.")
   }
 
+  if (!(col_fill %in% c(TRUE,"name"))) {
+    stop("Must pass either TRUE or 'name' to col_fill.")
+  }
+  
   message("+ Getting responses 🎣")
   
   time_start <- Sys.time()
@@ -38,6 +44,8 @@ parse_survey <- function(surv_obj,
   print(time_taken)
   
   message("+ Parsing responses ⛏")
+  
+  surv_obj$col_fill <- col_fill
   
   labels <- list()
   recordsList <- pbapply::pblapply(1:length(respondents), function(r) {
@@ -102,15 +110,12 @@ parse_survey <- function(surv_obj,
   for (q in rev(names(surv_obj$questions))) {
     if (col_names == "id") {
       cols <- colnames(records)[grepl(q, colnames(records))]
-      if (length(cols) > 0) {
-        records <- dplyr::relocate(records, cols)
-      }
     } else {
       cols <- names(labels[startsWith(unlist(labels), q)])
-      if (length(cols) > 0) {
-        records <- dplyr::relocate(records, cols)
-      }      
     }
+    if (length(cols) > 0) {
+      records <- dplyr::relocate(records, cols)
+    }    
   }
   
   records <- dplyr::relocate(records, c("collector_id",
@@ -135,15 +140,13 @@ parse_survey <- function(surv_obj,
     if (col_names == "id") {
       col.levels <- surv_obj$choices[[level.var]]
       col.vars <- colnames(records)[grepl(level.var, colnames(records))]
-      for (col.var in col.vars) {
-        records[[col.var]] <- factor(records[[col.var]], levels = col.levels)
-        base::levels(records[[col.var]]) <- col.levels
-      }
     } else {
       col.levels <- surv_obj$choices[[level.var]]
       col.vars <- names(labels[startsWith(unlist(labels), level.var)])
-      
-      for (col.var in col.vars) {
+    }
+    for (col.var in col.vars) {
+      if (all(unique(records[[col.var]]) %in% col.levels) &
+          !(all(unique(records[[col.var]]) %in% c(T,F)))) {
         records[[col.var]] <- factor(records[[col.var]], levels = col.levels)
         base::levels(records[[col.var]]) <- col.levels
       }

@@ -4,3 +4,4 @@
 
 * Fixed a bug in downloading a survey with named columns (i.e. `col_names = "name"`)
 * `parse_survey()` properly parses multi-answer matrix questions (one column for every question-row-column triplet)
+* Added different options for filling in multi-select
