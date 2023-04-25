@@ -6,6 +6,8 @@ This package provides access from R to the SurveyMonkey API. You can browse your
 
 As of 0.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create presentable banners for polls.
 
+**Note: This is the development branch, where new features for the coming release are being implemented and tested.**
+
 ## Authors
 
 **`svmkR` was forked from the `surveymonkey` in July 2022 [Soubhik Barari](https://github.com/soubhikbarari) while at Momentive.ai (maker of SurveyMonkey) and significantly re-designed and optimized (e.g. faster reads, more verbose outputs, handling of API errors and edge cases, etc.) with contributions from [Christopher Remmel](https://github.com/calremmel).**

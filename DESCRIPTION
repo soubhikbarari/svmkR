@@ -1,6 +1,6 @@
 Package: svmkR
 Title: Tools to make, download, and analyze surveys using the SurveyMonkey API. Included are additional utilities used by the SurveyMonkey Research Insights Team for survey processing, weighting, and banner creation.
-Version: 0.2.1
+Version: 0.3
 Authors@R: c(person("Soubhik", "Barari", role = c("aut", "cre"), email = "sbarari@momentive.ai"))
 Description: Provides access to the SurveyMonkey API for fetching survey results.
 Depends: R (>= 3.5.0)
