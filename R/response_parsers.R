@@ -17,14 +17,24 @@ make_output_id <- function(col_id, answer_text) {
 process_matrix <- function(surv_obj, question) {
   question_id <- question$id
   family <- surv_obj$families[[question_id]]
+  subtype <- surv_obj$subtypes[[question_id]]
   out_named <- list()
   out_id <- list()
   for (answer in question$answers) {
-    question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$row_id]])
-    col_id = paste0(question_id, "_", answer$row_id)
-    answer_text = surv_obj$answers[[answer$choice_id]]
-    out_named[[question_text]] <- answer_text
-    out_id[[col_id]] <- answer_text    
+    if (subtype == "multi") {
+      question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$row_id]], " - ", surv_obj$answers[[answer$choice_id]])
+      col_id = paste0(question_id, "_", answer$row_id, "_", answer$choice_id)
+      #answer_text = surv_obj$answers[[answer$choice_id]]
+      answer_text = TRUE
+      out_named[[question_text]] <- answer_text
+      out_id[[col_id]] <- answer_text
+    } else {
+      question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$row_id]])
+      col_id = paste0(question_id, "_", answer$row_id)
+      answer_text = surv_obj$answers[[answer$choice_id]]
+      out_named[[question_text]] <- answer_text
+      out_id[[col_id]] <- answer_text
+    }
   }
   return(list(name=out_named, id=out_id))
 }
@@ -37,11 +47,12 @@ process_multiple_choice <- function(surv_obj, question) {
   for (answer in question$answers) {
     if ("other_id" %in% names(answer)) {
       question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$other_id]])
-      col_id = paste0(question_id, "_", answer$other_id)
       answer_text = answer$text
+      col_id = paste0(question_id, "_", answer$other_id)
     } else {
-      answer_text = surv_obj$answers[[answer$choice_id]]
-      question_text = paste0(surv_obj$questions[[question_id]], " - ", answer_text)
+      question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$choice_id]])
+      #answer_text = surv_obj$answers[[answer$choice_id]]
+      answer_text = TRUE
       col_id = paste0(question_id, "_", answer$choice_id)
     }
     out_named[[question_text]] <- answer_text

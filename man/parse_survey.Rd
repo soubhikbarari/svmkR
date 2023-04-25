@@ -7,18 +7,24 @@
 parse_survey(surv_obj, oauth_token = get_token(), col_names = "id", ...)
 }
 \arguments{
-\item{surv_obj}{a survey, the result of a call to \code{fetch_survey_obj}.}
+\item{surv_obj}{A survey, the result of a call to \code{fetch_survey_obj}.}
 
 \item{oauth_token}{Your OAuth 2.0 token. By default, retrieved from
 \code{get_token()}.}
 
-\item{col_names}{set column names either to question IDs or names. Options: "id" or "name". Default: "id".}
+\item{col_names}{Set column names either to names ("name") or IDs ("id", default). Depending on question types, column names will be formatted as one of the following where each `{}` element is either an ID or a name:
+\itemize{
+  \item '\{question heading\}'
+  \item '\{question heading\} - Other'
+  \item '\{question heading\} - \{matrix row\}'
+  \item '\{question heading\} - \{matrix row\} - \{matrix column\}'
+}}
 
-\item{...}{additional arguments to pass on to \code{get_responses}.  See the documentation
+\item{...}{Additional arguments to pass on to \code{get_responses}.  See the documentation
 \code{?get_responses} where these arguments are listed.}
 }
 \value{
-a data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
+A data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
 }
 \description{
 Take a survey object and parses it into a tidy data.frame (optimized).
