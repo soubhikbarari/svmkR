@@ -24,7 +24,7 @@ process_matrix <- function(surv_obj, question) {
     if (subtype == "multi") {
       question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$row_id]], " - ", surv_obj$answers[[answer$choice_id]])
       col_id = paste0(question_id, "_", answer$row_id, "_", answer$choice_id)
-      if (surv_obj$col_fill %in% c("name"))
+      if ((surv_obj$col_fill %in% c("name")) | ("other_id" %in% names(answer)))
         answer_text = surv_obj$answers[[answer$choice_id]]
       else
         answer_text = TRUE
@@ -53,7 +53,7 @@ process_multiple_choice <- function(surv_obj, question) {
       col_id = paste0(question_id, "_", answer$other_id)
     } else {
       question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$choice_id]])
-      if (surv_obj$col_fill %in% c("name"))
+      if ((surv_obj$col_fill %in% c("name")))
         answer_text = surv_obj$answers[[answer$choice_id]]
       else
         answer_text = TRUE
