@@ -52,7 +52,7 @@ write_banners(
 a fully formatted spreadsheet in the form of an \code{openxlsx} object.
 }
 \description{
-Take the output from a call to \code{make_banners}, populate a spreadsheet with the banner data, format/stylize it in the SurveyMonkey research format, and save it locally and/or to a Google Drive folder.
+Take the output from a call to \code{make_banners}, populate a spreadsheet with the banner data, format/stylize it in the SurveyMonkey research format, and save it locally and/or to a Google Drive folder. Currently allows for up to one level of nesting in columns.
 }
 \examples{
 data(auto.evs)

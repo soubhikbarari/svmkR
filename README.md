@@ -109,19 +109,6 @@ Then fetch a collector’s recipient info:
 recipients <- get_recipients(234567890) # use a collector ID retrieved in the previous step
 ```
 
-### Removing HTML tags from column names
-
-If your question text has bold font or other formatting, an HTML tag
-will likely carry through. You can remove any text between “\<” and “\>”
-with `strip_html()`.
-
-``` r
-survey_df <- 123456789 %>%
-  fetch_survey_obj %>%
-  parse_survey %>% 
-  strip_html
-```
-
 ### Estimating margin of error
 
 There are two twin functions you can use to estimate [margin of error](https://en.wikipedia.org/wiki/Margin_of_error) (MOE) for your survey.

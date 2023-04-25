@@ -90,7 +90,7 @@ parse_survey <- function(surv_obj,
   message("+ Merging responses 🤝")
   
   records <- dplyr::bind_rows(recordsList)
-  
+
   for (q in rev(names(surv_obj$questions))) {
     if (col_names == "id") {
       cols <- colnames(records)[grepl(q, colnames(records))]
@@ -98,7 +98,7 @@ parse_survey <- function(surv_obj,
         records <- dplyr::relocate(records, cols)
       }
     } else {
-      cols <- labels[startsWith(labels, q)]
+      cols <- names(labels[startsWith(unlist(labels), q)])
       if (length(cols) > 0) {
         records <- dplyr::relocate(records, cols)
       }      
@@ -118,22 +118,22 @@ parse_survey <- function(surv_obj,
   
 
   colnames(records) <- gsub("  ", " ", colnames(records))
+  names(labels) <- gsub("  "," ", names(labels))
   
   message("+ Levelling columns 🗂")
 
   for (level.var in names(surv_obj$levels)) {
     if (col_names == "id") {
       col.levels <- surv_obj$levels[[level.var]]
-      level.varname <- level.var
-      col.vars <- colnames(records)[grepl(level.varname, colnames(records))]
+      col.vars <- colnames(records)[grepl(level.var, colnames(records))]
       for (col.var in col.vars) {
         records[[col.var]] <- factor(records[[col.var]], levels = col.levels)
         base::levels(records[[col.var]]) <- col.levels
       }
     } else {
       col.levels <- surv_obj$levels[[level.var]]
-      level.varname <- names(labels[labels == level.var])
-      col.vars <- colnames(records)[grepl(level.varname, colnames(records))]
+      col.vars <- names(labels[startsWith(unlist(labels), level.var)])
+      
       for (col.var in col.vars) {
         records[[col.var]] <- factor(records[[col.var]], levels = col.levels)
         base::levels(records[[col.var]]) <- col.levels

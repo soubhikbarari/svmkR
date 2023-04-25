@@ -4,13 +4,7 @@
 \alias{parse_survey}
 \title{Take a survey object and parses it into a tidy data.frame (optimized).}
 \usage{
-parse_survey(
-  surv_obj,
-  oauth_token = get_token(),
-  parallel = FALSE,
-  ...,
-  fix_duplicates = c("error", "drop", "keep")
-)
+parse_survey(surv_obj, oauth_token = get_token(), col_names = "id", ...)
 }
 \arguments{
 \item{surv_obj}{a survey, the result of a call to \code{fetch_survey_obj}.}
@@ -18,14 +12,10 @@ parse_survey(
 \item{oauth_token}{Your OAuth 2.0 token. By default, retrieved from
 \code{get_token()}.}
 
-\item{parallel}{process respondents in parallel across all available cores?}
+\item{col_names}{set column names either to question IDs or names. Options: "id" or "name". Default: "id".}
 
 \item{...}{additional arguments to pass on to \code{get_responses}.  See the documentation
 \code{?get_responses} where these arguments are listed.}
-
-\item{fix_duplicates}{character if 'error', the default detection of duplicate data will result
-in an error being raised, otherwise allow the function to return. If 'keep' duplicate results
-will be retained, if 'drop' duplicates will be removed from the results.}
 }
 \value{
 a data.frame (technically a \code{tibble}) with clean responses, one line per respondent.

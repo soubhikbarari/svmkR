@@ -2,7 +2,7 @@
 % Please edit documentation in R/request_utils.R
 \name{sm_get}
 \alias{sm_get}
-\title{Get request for survey monkey API}
+\title{GET request for svmkR API}
 \usage{
 sm_get(url, query, config, ...)
 }
@@ -10,7 +10,7 @@ sm_get(url, query, config, ...)
 \item{url}{character, url to send request to}
 
 \item{query}{character, components of the url to change for request arguments,
-see also \code{?httr::modify_url}, \link[httr]{modify_url}}
+see also \code{?httr::modify_url}, \link[httr]{modify_url}.}
 
 \item{config}{see \code{?httr::config}, \link[httr]{config}, for full details.
 Additional configuration settings such as http additional headers.}
@@ -18,5 +18,5 @@ Additional configuration settings such as http additional headers.}
 \item{...}{additional argument passed to \code{httr::GET} \link[httr]{GET}.}
 }
 \description{
-Will always set the tntp/surveymonkey repo as the user agent
+Will always set the \code{soubhikbarari/svmkR} repo as the user agent
 }
