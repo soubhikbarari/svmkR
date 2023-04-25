@@ -135,7 +135,7 @@ parse_survey <- function(surv_obj,
   names(labels) <- gsub("  "," ", names(labels))
   
   message("+ Levelling columns 🗂")
-
+  browser()
   for (level.var in names(surv_obj$choices)) {
     if (col_names == "id") {
       col.levels <- surv_obj$choices[[level.var]]
@@ -145,8 +145,8 @@ parse_survey <- function(surv_obj,
       col.vars <- names(labels[startsWith(unlist(labels), level.var)])
     }
     for (col.var in col.vars) {
-      if (all(unique(records[[col.var]]) %in% col.levels) &
-          !(all(unique(records[[col.var]]) %in% c(T,F)))) {
+      if (all(unique(records[[col.var]]) %in% c(NA, col.levels)) &
+          !(all(unique(records[[col.var]]) %in% c(NA, T,F)))) {
         records[[col.var]] <- factor(records[[col.var]], levels = col.levels)
         base::levels(records[[col.var]]) <- col.levels
       }
