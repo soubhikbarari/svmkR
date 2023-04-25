@@ -1,12 +1,18 @@
 #' Take a survey object and parses it into a tidy data.frame (optimized).
 #'
-#' @param surv_obj a survey, the result of a call to \code{fetch_survey_obj}.
+#' @param surv_obj A survey, the result of a call to \code{fetch_survey_obj}.
 #' @param oauth_token Your OAuth 2.0 token. By default, retrieved from
 #'  \code{get_token()}.
-#' @param col_names set column names either to question IDs or names. Options: "id" or "name". Default: "id".
-#' @param ... additional arguments to pass on to \code{get_responses}.  See the documentation
+#' @param col_names Set column names either to names ("name") or IDs ("id", default). Depending on question types, column names will be formatted as one of the following where each `{}` element is either an ID or a name:
+#' \itemize{
+#'   \item '\{question heading\}'
+#'   \item '\{question heading\} - Other'
+#'   \item '\{question heading\} - \{matrix row\}'
+#'   \item '\{question heading\} - \{matrix row\} - \{matrix column\}'
+#' }
+#' @param ... Additional arguments to pass on to \code{get_responses}.  See the documentation
 #' \code{?get_responses} where these arguments are listed.
-#' @return a data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
+#' @return A data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
 #' @importFrom rlang .data
 #' @export
 parse_survey <- function(surv_obj, 
@@ -91,6 +97,7 @@ parse_survey <- function(surv_obj,
   message("+ Merging responses 🤝")
   
   records <- dplyr::bind_rows(recordsList)
+  records$survey_id <- surv_obj$id
 
   for (q in rev(names(surv_obj$questions))) {
     if (col_names == "id") {
@@ -108,6 +115,7 @@ parse_survey <- function(surv_obj,
   
   records <- dplyr::relocate(records, c("collector_id",
                                         "collection_mode",
+                                        "survey_id",
                                         "response_id",
                                         "response_status",
                                         "date_created",
@@ -123,16 +131,16 @@ parse_survey <- function(surv_obj,
   
   message("+ Levelling columns 🗂")
 
-  for (level.var in names(surv_obj$levels)) {
+  for (level.var in names(surv_obj$choices)) {
     if (col_names == "id") {
-      col.levels <- surv_obj$levels[[level.var]]
+      col.levels <- surv_obj$choices[[level.var]]
       col.vars <- colnames(records)[grepl(level.var, colnames(records))]
       for (col.var in col.vars) {
         records[[col.var]] <- factor(records[[col.var]], levels = col.levels)
         base::levels(records[[col.var]]) <- col.levels
       }
     } else {
-      col.levels <- surv_obj$levels[[level.var]]
+      col.levels <- surv_obj$choices[[level.var]]
       col.vars <- names(labels[startsWith(unlist(labels), level.var)])
       
       for (col.var in col.vars) {
@@ -146,6 +154,7 @@ parse_survey <- function(surv_obj,
 
   labels$collector_id <- "Collector ID"
   labels$collection_mode <- "Collector mode"
+  labels$survey_id <- "Survey ID"
   labels$response_id <- "Response ID"
   labels$response_status <- "Response status"
   labels$date_created <- "Date response created"
