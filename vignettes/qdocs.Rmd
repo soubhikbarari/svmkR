@@ -13,9 +13,9 @@ vignette: >
 
 There are three ways to write a questionnaire up as a QDOC:
 
-- There is a **simple format** for plain-text files that resembles how you might normally write survey questions (i.e. not explicitly writing out each type), but leaves less flexibility for multi-line question choices.
+- There is a **simple format** for plain-text files that resembles how you might normally write survey questions (i.e. not explicitly writing out each type), but leaves less flexibility for multi-line choices/rows/columns.
 
-- There is an **advanced format** for plain-text files that requires more specificity (e.g. what type of question each question is, where the heading ends and the choices begin, delineate each choice), but leaves less room for error in parsing.
+- There is an **advanced format** for plain-text files that requires more specificity (e.g. what type of question each question is, where the heading ends and the choices begin, delineate each choice), but leaves less room for error in parsing multi-line choices/rows/columns.
 
 - There is a **Google Doc format** for Google Doc documents that largely resembles the simple format, but takes advantage of indented lists to unambiguously structure question choices, rows, columns, etc.
 
@@ -23,14 +23,39 @@ There are three ways to write a questionnaire up as a QDOC:
 
 # QDOC Tags
 
+The following tags are to be used in simple-text, advanced-text, or Google Doc questionnaires:
+
+- `[[Block]]`: Insert a new block after this tag.
+
+- `[[PageBreak]]`: Insert a new page after this tag (in SurveyMonkey, behaves same as `[[Block]]`).
+
+- `[[MultipleAnswer]]`: Denote that the present question is multi-answer or multi-select (the respondent can select "all that apply"). Can put anywhere in the question text or heading.
+
+- `[[Required]]`: Denote that the present question is required. Can put anywhere in the question text or heading.
+
+- `[[Choices]]`: Denote the start of line-separated choices for the present question.
+
+- `[[Rows]]`: Denote the start of line-separated row labels for the present matrix question.
+  - aliases: `[[Choices]]`
+
+- `[[Columns]]`: Denote the start of line-separated column labels for the present matrix question.
+  - aliases: `[[Answers]]`, `[[Cols]]`
+
+- `[[{Family}]]`: Denote that the present question is of a particular *family*. Can put anywhere in the question text or heading.
+
+The following tags are to be used in advanced-text questionnaires:
+
+- `[[Question:{Family}]]`: Specify the *family* (e.g. Matrix vs. Multiple Choice) for the question that follows this tag. Must insert before question text.
+
+- `[[Question:{Type}:{Subtype}]]`: Specify the *subtype* within the specified family (e.g. Multi-Select, Menu Dropdown) for the question that follows this tag. Must insert before question text.
 
 
-# Question Types
+# Question Families
 
 ## Multiple Choice
 
 
-## Multiple Choice
+## Single Choice
 
 
 ## Matrix
