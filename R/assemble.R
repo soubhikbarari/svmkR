@@ -22,7 +22,7 @@ parse_survey <- function(surv_obj,
   if (!(col_names %in% c("id","name"))) {
     stop("Must pass either 'id' or 'name' to col_names.")
   }
-
+  
   message("+ Getting responses 🎣")
   
   time_start <- Sys.time()
@@ -83,7 +83,7 @@ parse_survey <- function(surv_obj,
     record$last_name <- response$last_name
     record$email_address <- response$email_address
     record$ip_address <- response$ip_address
-
+    
     return(dplyr::bind_cols(record))
   })
   
@@ -98,7 +98,7 @@ parse_survey <- function(surv_obj,
         records <- dplyr::relocate(records, cols)
       }
     } else {
-      cols <- labels[startsWith(labels, q)]
+      cols <- names(labels[startsWith(unlist(labels), q)])
       if (length(cols) > 0) {
         records <- dplyr::relocate(records, cols)
       }      
@@ -116,24 +116,24 @@ parse_survey <- function(surv_obj,
                                         "email_address",
                                         "ip_address"))
   
-
+  
   colnames(records) <- gsub("  ", " ", colnames(records))
+  names(labels) <- gsub("  "," ", names(labels))
   
   message("+ Levelling columns 🗂")
-
+  
   for (level.var in names(surv_obj$levels)) {
     if (col_names == "id") {
       col.levels <- surv_obj$levels[[level.var]]
-      level.varname <- level.var
-      col.vars <- colnames(records)[grepl(level.varname, colnames(records))]
+      col.vars <- colnames(records)[grepl(level.var, colnames(records))]
       for (col.var in col.vars) {
         records[[col.var]] <- factor(records[[col.var]], levels = col.levels)
         base::levels(records[[col.var]]) <- col.levels
       }
     } else {
       col.levels <- surv_obj$levels[[level.var]]
-      level.varname <- names(labels[labels == level.var])
-      col.vars <- colnames(records)[grepl(level.varname, colnames(records))]
+      col.vars <- names(labels[startsWith(unlist(labels), level.var)])
+      
       for (col.var in col.vars) {
         records[[col.var]] <- factor(records[[col.var]], levels = col.levels)
         base::levels(records[[col.var]]) <- col.levels
@@ -142,7 +142,7 @@ parse_survey <- function(surv_obj,
   }
   
   message("+ Labelling columns 🗂")
-
+  
   labels$collector_id <- "Collector ID"
   labels$collection_mode <- "Collector mode"
   labels$response_id <- "Response ID"
