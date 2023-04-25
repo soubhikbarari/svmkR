@@ -44,6 +44,7 @@ parse_survey <- function(surv_obj,
       for (q in 1:length(page$questions)) {
         question <- page$questions[[q]]
         question_id <- question$id
+        # if (startsWith(question_id, "86524344")) stop("")
         family <- surv_obj$families[[question_id]]
         if (family == "matrix") {
           out <- process_matrix(surv_obj, question)
