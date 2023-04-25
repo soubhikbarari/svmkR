@@ -1,28 +1,16 @@
-
 # svmkR: Tools for SurveyMonkey Surveys in R :clipboard: :monkey:
 
 <img src="hex.png" align="right" style="height: 128px; margin-left: 4px;"/>
 
-This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. As of 1.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create presentable banners for polls.
+This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. 
 
-### Authors
+As of 0.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create presentable banners for polls.
 
-**This version was forked from the previous version in July 2022 by [Soubhik
-Barari](soubhikbarari.com) while at Momentive.ai (maker of SurveyMonkey) and optimized for
-internal usage (e.g., faster reads, more verbose outputs, handling of
-API errors and edge cases, etc.).**
+## Authors
 
-The [first version of this package](https://github.com/cloudyr/Rmonkey)
-was written by Thomas Leeper. It worked with version 2 of the
-SurveyMonkey API.
+**`svmkR` was forked from the `surveymonkey` in July 2022 [Soubhik Barari](https://github.com/soubhikbarari) while at Momentive.ai (maker of SurveyMonkey) and significantly re-designed and optimized (e.g. faster reads, more verbose outputs, handling of API errors and edge cases, etc.) with contributions from [Christopher Remmel](https://github.com/calremmel).**
 
-After SurveyMonkey’s change to v3 of their API broke the package, it was
-rewritten by employees of [TNTP](https://tntp.org), a nonprofit company
-working to end the injustice of educational inequality.
-
-Matt Roumaya took over from TNTP as the de facto maintainer in 2021 and,
-in 2022, became the official maintainer of the package, keeping it going
-into another stage of its life.
+Previous versions of this package were written/maintained by [Thomas Leeper](https://github.com/leeper), [Sam Firke](https://github.com/sfirke), and [Matt Roumaya](https://github.com/mattroumaya).
 
 ## Installation
 
@@ -37,44 +25,29 @@ devtools::install_github("soubhikbarari/svmkR")
 
 ### Authentication
 
-*Have an opinion about OAuth procedures? If you can improve this
-guidance, please open an issue with your suggestions.*
-
-#### Get your OAuth token
-
 You’ll need an OAuth token, and for that you’ll need to set up an app.
 
-Log in to SurveyMonkey in your browser, then navigate to
-<https://developer.surveymonkey.com/apps>. Create an app. It should be
-private, and you should enable the relevant scopes: View Surveys, View
+1. Log in to SurveyMonkey in your browser, then navigate to
+<https://developer.surveymonkey.com/apps>. 
+
+2. Create an app. It should be private, and you should enable the relevant scopes: View Surveys, View
 Collectors, View Contacts, View Responses, View Response Details. (That
 should do it, but if you get a 403 error when you try to browse surveys,
 try enabling other relevant scopes). You don’t need to click “deploy”,
 as long as the setting selected have been updated you’re set.
 
-Now look at the settings page for your app and take note of the “Access
+3. Now look at the settings page for your app and take note of the “Access
 Token” field, which should contain a very long character string.
 
-#### Add your OAuth token to your .Rprofile
-
-Add the SurveyMonkey account’s OAuth token to your .Rprofile file. To
+4. Add the SurveyMonkey account’s OAuth token to your .Rprofile file. To
 open and edit that file, run `usethis::edit_r_profile()`, then add a
-line like this:
-`options(sm_oauth_token = "kmda332fkdlakfld8am7ml3dafka-dafknalkfmalkfad-THIS IS NOT THE REAL KEY THOUGH")`.
+line like this: `options(sm_oauth_token = "MY-OAUTH-TOKEN-FROM-STEP-3")`.
 
-Except use the OAuth token listed on your app’s settings page, obtained
-in the previous step.
+5. Restart R for this change to take effect.
 
-Restart R for this change to take effect.
-
-If this is all set up successfully, the token will print when you run
+6. If this is all set up successfully, the token will print when you run
 `getOption("sm_oauth_token")`. Guard this token: don’t share it and
 don’t commit it in any repository.
-
-*Developer’s note: That’s how a user can get a single account’s OAuth
-token. It might be preferable if users could authenticate from within R.
-If someone has guidance for how users should obtain their OAuth token
-more generally, please submit a pull request or comment in an issue.*
 
 ### Browsing your surveys
 
@@ -170,16 +143,10 @@ Banners are the bread and butter of the SurveyMonkey Research Insights Team.
 
 To see how the `svmkR` package can do this, check out `make_banners()` and `write_banners()`.
 
-## API considerations
+## API Considerations
 
 Your account will likely be limited to 500 hits per day to the API. This
 package will print reminders of how many calls you have left in the day.
 The main thing to keep an eye on is respondent counts; as only 100
 responses can be fetched per API call, a survey with X respondents will
 make at least X/100 calls to the API.
-
-# Contact
-
-Something may not work, because this is an in-development package. Or
-you may have an idea for something that hasn’t been implemented yet. In
-either case, please create an issue in the GitHub issue tracker!
