@@ -2,25 +2,30 @@
 
 <img src="hex.png" align="right" style="height: 128px; margin-left: 4px;"/>
 
-This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. 
+This package provides a suite of tools to work with SurveyMonkey surveys.
 
-As of 0.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create presentable banners for polls.
+You can:
+
+* Create and upload a survey from a questionnaire document.
+* Browse and download surveys in your account.
+* Conduct basic analysis (e.g. margin of error) on your surveys
+* Create presentable SurveyMonkey-style banners for polls.
 
 **Note: This is the development branch, where new features for the coming release are being implemented and tested.**
 
 ## Authors
 
-**`svmkR` was forked from the `surveymonkey` in July 2022 [Soubhik Barari](https://github.com/soubhikbarari) while at Momentive.ai (maker of SurveyMonkey) and significantly re-designed and optimized (e.g. faster reads, more verbose outputs, handling of API errors and edge cases, etc.) with contributions from [Christopher Remmel](https://github.com/calremmel).**
+**`svmkR` was forked from the `surveymonkey` package in July 2022 [Soubhik Barari](https://github.com/soubhikbarari) while at Momentive.ai (maker of SurveyMonkey) and significantly re-designed and optimized (e.g. faster reads, more verbose outputs, handling of API errors and edge cases, etc.) with contributions from [Christopher Remmel](https://github.com/calremmel).**
 
 Previous versions of this package were written/maintained by [Thomas Leeper](https://github.com/leeper), [Sam Firke](https://github.com/sfirke), and [Matt Roumaya](https://github.com/mattroumaya).
 
 ## Installation
 
-This package is not yet on CRAN. Install from GitHub with:
+To install the development version from GitHub:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("soubhikbarari/svmkR")
+devtools::install_github("soubhikbarari/svmkR", branch = "dev")
 ```
 
 ## Usage
@@ -50,6 +55,14 @@ line like this: `options(sm_oauth_token = "MY-OAUTH-TOKEN-FROM-STEP-3")`.
 6. If this is all set up successfully, the token will print when you run
 `getOption("sm_oauth_token")`. Guard this token: don’t share it and
 don’t commit it in any repository.
+
+### Make a survey
+
+<!-- TODO -->
+
+### Upload your survey
+
+<!-- TODO -->
 
 ### Browsing your surveys
 
@@ -111,25 +124,14 @@ Then fetch a collector’s recipient info:
 recipients <- get_recipients(234567890) # use a collector ID retrieved in the previous step
 ```
 
-### Removing HTML tags from column names
-
-If your question text has bold font or other formatting, an HTML tag
-will likely carry through. You can remove any text between “\<” and “\>”
-with `strip_html()`.
-
-``` r
-survey_df <- 123456789 %>%
-  fetch_survey_obj %>%
-  parse_survey %>% 
-  strip_html
-```
-
 ### Estimating margin of error
 
 There are two twin functions you can use to estimate [margin of error](https://en.wikipedia.org/wiki/Margin_of_error) (MOE) for your survey.
 
 * Estimate the MOE using an asymptotic formula (`esti_moe`)
 * Simulate the MOE using non-parametric bootstraps (`simu_moe`)
+
+Both incorporate any weights estimated for the survey.
 
 Here's an example using some dummy data included in the package:
 
@@ -149,6 +151,7 @@ To see how the `svmkR` package can do this, check out `make_banners()` and `writ
 
 Your account will likely be limited to 500 hits per day to the API. This
 package will print reminders of how many calls you have left in the day.
+
 The main thing to keep an eye on is respondent counts; as only 100
 responses can be fetched per API call, a survey with X respondents will
 make at least X/100 calls to the API.
