@@ -9,6 +9,18 @@ vignette: >
 
 ### QDOC is a flexible format for your survey questionnaire document that uses tags to allow it to easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.
 
+**Table of Contents:**
+
+1. [Overview](#overview)
+2. [QDOC Tags](#qdoc-tags)
+3. [Question Families](#question-families):
+    - [Multiple Choice (Single Answer)](#multiple-choice-single-answer)
+    - [Multiple Choice (Multi Answer)](#multiple-choice-multi-answer)
+    - [Matrix](#matrix)
+    - [Open Ended](#open-ended)
+
+# Overview
+
 There are three ways to write a questionnaire up as a QDOC:
 
 - There is a **simple format** for plain-text files that resembles how you might normally write survey questions (i.e. not explicitly writing out each type), but leaves less flexibility for multi-line choices/rows/columns.

@@ -164,8 +164,14 @@ read_qdoc <- function(file.path = NULL,
   qualtrics.adv <- grepl("\\[\\[AdvancedFormat\\]\\]", qdoc.text)
   
   # delimit pages or blocks
-  qdoc.text <- stringr::str_split(qdoc.text, "[\r\n]+(?=(\\[\\[Block\\:*[a-zA-Z\\: ]*\\]\\]|\\[\\[PageBreak\\:*[a-zA-Z\\: ]*\\]\\]))")[[1]]
-  qdoc.text <- gsub("^(\\[\\[Block\\:*[a-zA-Z\\: ]*\\]\\]|\\[\\[PageBreak\\:*[a-zA-Z\\: ]*\\]\\])","",qdoc.text)
+  delim.tags <- c("Block","block","BLOCK",
+                  "Page","page","PAGE",
+                  "PageBreak","Pagebreak","pagebreak","PAGEBREAK")
+  
+  delim <- paste0("[\r\n]+(?=(", paste0(sprintf("\\[\\[%s\\:*[a-zA-Z\\: ]*\\]\\]", delim.tags), collapse="|"), "))")
+  
+  qdoc.text <- stringr::str_split(qdoc.text, delim)[[1]]
+  qdoc.text <- gsub(delim,"",qdoc.text)
   
   # establish first block
   qdoc.text <- trimws(qdoc.text)

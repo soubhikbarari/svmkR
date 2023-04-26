@@ -174,7 +174,7 @@ get_choices <- function(q.text, quiet.fail = FALSE) {
       stop(sprintf("no choices found in question text"))
     }
   }
-  choices <- trimws(gsub("^(\\-|\\d\\.|\\d\\))","", choices))
+  choices <- trimws(gsub("^(\t)*(\\-|\\d\\.|\\d\\))","", choices))
   choices <- choices[choices != ""]
   if (length(choices) == 0) {
     if (!quiet.fail) {
@@ -328,7 +328,8 @@ get_subtype <- function(q.text, fam = NULL) {
     subtype <- "menu"
   } else if (grepl("(\\[\\[|\\:)Single", q.text, ignore.case=T)) {
     subtype <- "single"
-  } else if (grepl("(\\[\\[|\\:)Multi", q.text, ignore.case=T)) {
+  } else if (grepl("(\\[\\[|\\:)Multi", q.text, ignore.case=T) |
+             grepl("Select all that apply", q.text, ignore.case=T)) {
     subtype <- "multi"
   } else if (grepl("(\\[\\[|\\:)Essay", q.text, ignore.case=T)) {
     subtype <- "essay"
