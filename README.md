@@ -2,15 +2,13 @@
 
 <img src="hex.png" align="right" style="height: 128px; margin-left: 4px;"/>
 
-This package provides access from R to the SurveyMonkey API. You can browse your surveys, pick one to fetch, return to them to `data.frame` format. 
+This package provides a suite of tools to work with SurveyMonkey surveys.
 
-As of 0.1.3, `svmkR` also includes additional utilities to (1) analyze surveys and (2) create presentable banners for polls.
+You can:
 
-## Authors
-
-**`svmkR` was forked from the `surveymonkey` in July 2022 [Soubhik Barari](https://github.com/soubhikbarari) while at Momentive.ai (maker of SurveyMonkey) and significantly re-designed and optimized (e.g. faster reads, more verbose outputs, handling of API errors and edge cases, etc.) with contributions from [Christopher Remmel](https://github.com/calremmel).**
-
-Previous versions of this package were written/maintained by [Thomas Leeper](https://github.com/leeper), [Sam Firke](https://github.com/sfirke), and [Matt Roumaya](https://github.com/mattroumaya).
+* Browse and download surveys in your account.
+* Conduct basic analysis (e.g. margin of error) on your surveys
+* Create presentable SurveyMonkey-style banners for polls.
 
 ## Installation
 
@@ -137,3 +135,9 @@ package will print reminders of how many calls you have left in the day.
 The main thing to keep an eye on is respondent counts; as only 100
 responses can be fetched per API call, a survey with X respondents will
 make at least X/100 calls to the API.
+
+## Authors
+
+**`svmkR` was forked from the `surveymonkey` in July 2022 [Soubhik Barari](https://github.com/soubhikbarari) while at Momentive.ai (maker of SurveyMonkey) and significantly re-designed and optimized (e.g. faster reads, more verbose outputs, handling of API errors and edge cases, etc.) with contributions from [Christopher Remmel](https://github.com/calremmel).**
+
+Previous versions of this package were written/maintained by [Thomas Leeper](https://github.com/leeper), [Sam Firke](https://github.com/sfirke), and [Matt Roumaya](https://github.com/mattroumaya).
