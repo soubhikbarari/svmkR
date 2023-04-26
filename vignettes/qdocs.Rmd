@@ -7,9 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# Introduction
-
-**QDOC is a flexible format for your survey questionnaire document that uses tags to allow it to easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.**
+### QDOC is a flexible format for your survey questionnaire document that uses tags to allow it to easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.
 
 There are three ways to write a questionnaire up as a QDOC:
 
@@ -19,48 +17,367 @@ There are three ways to write a questionnaire up as a QDOC:
 
 - There is a **Google Doc format** for Google Doc documents that largely resembles the simple format, but takes advantage of indented lists to unambiguously structure question choices, rows, columns, etc.
 
-<!-- BOOKMARK: give examples of each question type and variations across formats -->
+The QDOC format is meant to be compatible with both the [SurveyMonkey API](https://developer.surveymonkey.com/api/v3/) and with [Qualtrics](https://www.qualtrics.com/support/survey-platform/survey-module/survey-tools/import-and-export-surveys/).
 
 # QDOC Tags
 
-The following tags are to be used in simple-text, advanced-text, or Google Doc questionnaires:
+The following tags are to be used in simple-text, advanced-text, or Google Doc questionnaires. Note that these should be case-insensitive (i.e. **[[PAGE]]** operates the same as **[[Page]]**):
 
-- `[[Block]]`: Insert a new block after this tag.
+- **[[Block]]**: Insert a new block after this tag.
 
-- `[[PageBreak]]`: Insert a new page after this tag (in SurveyMonkey, behaves same as `[[Block]]`).
+- **[[Page]]**: Insert a new page after this tag (in SurveyMonkey, behaves same as **[[Block]]**).
+  - aliases: **[[PageBreak]]**
 
-- `[[MultipleAnswer]]`: Denote that the present question is multi-answer or multi-select (the respondent can select "all that apply"). Can put anywhere in the question text or heading.
+- **[[MultipleAnswer]]**: Denote that the present question is multi-answer or multi-select (the respondent can select "all that apply"). Can put anywhere in the question text or heading.
 
-- `[[Required]]`: Denote that the present question is required. Can put anywhere in the question text or heading.
+- **[[Required]]**: Denote that the present question is required. Can put anywhere in the question text or heading.
 
-- `[[Choices]]`: Denote the start of line-separated choices for the present question.
+- **[[Choices]]**: Denote the start of line-separated choices for the present question.
 
-- `[[Rows]]`: Denote the start of line-separated row labels for the present matrix question.
-  - aliases: `[[Choices]]`
+- **[[Rows]]**: Denote the start of line-separated row labels for the present matrix question.
+  - aliases: **[[Choices]]**
 
-- `[[Columns]]`: Denote the start of line-separated column labels for the present matrix question.
-  - aliases: `[[Answers]]`, `[[Cols]]`
+- **[[Columns]]**: Denote the start of line-separated column labels for the present matrix question.
+  - aliases: **[[Answers]]**, **[[Cols]]**
 
-- `[[{Family}]]`: Denote that the present question is of a particular *family*. Can put anywhere in the question text or heading.
+- **[[{Family}]]**: Denote that the present question is of a particular *family*. Can put anywhere in the question text or heading.
+
+- **[[ID:{Question Bank ID}]]**: To be replaced with text of question with specified ID from SurveyMonkey Question Bank.
 
 The following tags are to be used in advanced-text questionnaires:
 
-- `[[Question:{Family}]]`: Specify the *family* (e.g. Matrix vs. Multiple Choice) for the question that follows this tag. Must insert before question text.
+- **[[Question:{Family}]]**: Specify the *family* for the question that follows this tag. Must insert before question text. Values include:
 
-- `[[Question:{Type}:{Subtype}]]`: Specify the *subtype* within the specified family (e.g. Multi-Select, Menu Dropdown) for the question that follows this tag. Must insert before question text.
+  - `MultipleChoice` (aliases: `MC`)
+  - `Matrix`
+  - `Datetime`
+  - `OpenEnded` (aliases: `TextEntry`, `TE`, `Open`)
 
+- **[[Question:{Type}:{Subtype}]]**: Specify the *subtype* within the specified family (e.g. Multi-Select, Menu Dropdown) for the question that follows this tag. Must insert before question text.
+
+- **[[Advanced{Choices|Rows|Columns}]]**: Denote the start of possibly multi-line choices/rows/columns. Must then denote the start each choice/row/column with **[[Choice]]** or **[[Row]]** or **[[Column]]**.
+
+
+The following are values for subtype that can either be specified either alone in simple-text mode (e.g. **[[{Subtype}]]**) or attached to the question type in advanced-text mode (see above):
+
+  - `Vertical`
+  - `Dropdown` or `Menu`
+  - `Single` or `SingleAnswer`
+  - `Multi` or `MultiAnswer` or `MultiSelect`
+  - `Essay`
+  - `Numerical` or `Form`
 
 # Question Families
 
-## Multiple Choice
+Question families and their subtypes are meant to match up to the [SurveyMonkey API families and subtypes](https://developer.surveymonkey.com/api/v3/#api-endpoints--formatting-question-types), but also should be compatible with [Qualtrics questionnaire tags](https://www.qualtrics.com/support/survey-platform/survey-module/survey-tools/import-and-export-surveys/#PreparingAnAdvancedFormatTXTFile).
 
+## Multiple Choice (Single Answer)
 
-## Single Choice
+*Also simply called "Single Choice".*
 
+Examples in simple-text format (key is either the line separation or the `[[Choices]]` tag):
+
+```
+1. Which monkey would you rather have as a pet?
+
+Baboon
+Capuchin
+Howler
+Mandrill
+
+2. Which monkey would you rather have as a pet?
+
+- Baboon
+- Capuchin
+- Howler
+- Mandrill
+
+3. Which monkey would you rather have as a pet?
+
+  1. Baboon
+  2. Capuchin
+  3. Howler
+  4. Mandrill
+
+4. Which monkey would you rather have as a pet? [[Dropdown]]
+
+Baboon
+Capuchin
+Howler
+Mandrill
+
+5. Which monkey would you rather have as a pet?
+[[Choices]]
+Baboon
+Capuchin
+Howler
+Mandrill
+```
+
+Examples in advanced-text format:
+
+```
+[[Question:MultipleChoice]]
+Which monkey would you rather have as a pet?
+[[Choices]]
+Baboon
+Capuchin
+Howler
+Mandrill
+
+[[Question:MultipleChoice:SingleAnswer]]
+Which monkey would you rather have as a pet?
+[[AdvancedChoices]]
+[[Choice]]
+Yellow
+Baboon
+[[Choice]]
+Tufted
+Capuchin
+[[Choice]]
+Black
+Howler
+[[Choice]]
+Japanese
+Mandrill
+
+[[Question:MC:SingleAnswer:Dropdown]]
+Which monkey would you rather have as a pet?
+[[Choices]]
+Baboon
+Capuchin
+Howler
+Mandrill
+```
+
+Note the equivalence of the following:
+
+- `[[Question:MultipleChoice]]` (defaults to single-answer)
+- `[[Question:MC]]`
+- `[[Question:MC:SingleAnswer]]`
+- `[[Question:MC]]` .. `[[SingleAnswer]]`
+
+## Multiple Choice (Multi Answer)
+
+*Note: an explicit "Other" option is still in the works.*
+
+Examples in simple-text format (key is either the line separation or the `[[Choices]]` tag):
+
+```
+1. Which monkey would you rather have as a pet? [[MultiAnswer]]
+
+Baboon
+Capuchin
+Howler
+Mandrill
+
+2. Which monkey would you rather have as a pet? [[Multi]]
+
+- Baboon
+- Capuchin
+- Howler
+- Mandrill
+
+3. Which monkey would you rather have as a pet? [[MultiSelect]]
+[[Choices]]
+Baboon
+Capuchin
+Howler
+Mandrill
+
+4. Which monkey would you rather have as a pet? (Select all that apply)
+
+Baboon
+Capuchin
+Howler
+Mandrill
+```
+
+Note that `"Select all that apply"` in the question text automatically tags the question as a multi-answer question.
+
+Examples in advanced-text format:
+
+```
+[[Question:MultipleChoice:MultiAnswer]]
+Which monkey would you rather have as a pet?
+[[Choices]]
+Baboon
+Capuchin
+Howler
+Mandrill
+
+[[Question:MultipleChoice:MultiSelect]]
+Which monkey would you rather have as a pet?
+[[AdvancedChoices]]
+[[Choice]]
+Yellow
+Baboon
+[[Choice]]
+Tufted
+Capuchin
+[[Choice]]
+Black
+Howler
+[[Choice]]
+Japanese
+Mandrill
+
+[[Question:MC:MultiAnswer:MultiSelect]]
+Which monkey would you rather have as a pet?
+[[Choices]]
+Baboon
+Capuchin
+Howler
+Mandrill
+```
 
 ## Matrix
 
+*Note: `svmkR` currently only supports single-choice matrices (`single`) and multi-select matrices (`multi`). Rating (`rating`) and ranked-choice (`ranking`) are expected in a future release.*
+
+Examples in simple-text format:
+
+```
+1. How strongly do you like or dislike each of the following monkeys?
+
+Baboon
+Capuchin
+Howler
+Mandrill
+
+Strongly like
+Somewhat like
+Neutral
+Somewhat dislike
+Strongly like
+
+2. How strongly do you like or dislike each of the following monkeys?
+[[Rows]]
+Baboon
+Capuchin
+Howler
+Mandrill
+[[Columns]]
+Strongly like
+Somewhat like
+Neutral
+Somewhat dislike
+Strongly like
+
+3. How strongly do you like or dislike each of the following monkeys?
+[[Choices]]
+Baboon
+Capuchin
+Howler
+Mandrill
+[[Answers]]
+Strongly like
+Somewhat like
+Neutral
+Somewhat dislike
+Strongly like
+
+3. How strongly do you like or dislike each of the following monkeys? [[Matrix]]
+[[Choices]]
+Baboon
+Capuchin
+Howler
+Mandrill
+[[Answers]]
+Strongly like
+Somewhat like
+Neutral
+Somewhat dislike
+Strongly like
+```
+
+Examples in advanced-text format:
+
+```
+[[Question:Matrix]]
+How strongly do you like or dislike each of the following monkeys?
+[[Rows]]
+Baboon
+Capuchin
+Howler
+Mandrill
+[[Columns]]
+Strongly like
+Somewhat like
+Neutral
+Somewhat dislike
+Strongly like
+
+[[Question:Matrix:SingleAnswer]]
+How strongly do you like or dislike each of the following monkeys?
+[[AdvancedRows]]
+[[Row]]
+Baboon
+[[Row]]
+Capuchin
+[[Row]]
+Howler
+[[Row]]
+Mandrill
+[[AdvancedColumns]]
+[[Col]]
+Strongly like
+[[Col]]
+Somewhat like
+[[Col]]
+Neutral
+[[Col]]
+Somewhat dislike
+[[Col]]
+Strongly like
+
+[[Question:Matrix:MultiAnswer]]
+How would you describe each of the following monkeys? Select all that apply.
+[[AdvancedRows]]
+[[Row]]
+Baboon
+[[Row]]
+Capuchin
+[[Row]]
+Howler
+[[Row]]
+Mandrill
+[[AdvancedColumns]]
+[[Col]]
+Capricious
+[[Col]]
+Mischievous
+[[Col]]
+Rambunctious
+[[Col]]
+Adorable
+[[Col]]
+Intelligent
+```
 
 ## Open Ended
+
+Examples in simple-text format:
+
+```
+1. In a few words, describe the ideal monkey. [[Open]]
+
+2. In a few words, describe the ideal monkey. [[OpenEnded]]
+
+3. In a few words, describe the ideal monkey. [[TextEntry]]
+```
+
+Examples in advanced-text format:
+
+```
+[[Question:Open]]
+In a few words, describe the ideal monkey.
+
+[[Question:OpenEnded:Essay]]
+In a few words, describe the ideal monkey.
+
+[[Question:TE]]
+In a few words, describe the ideal monkey. [[Essay]]
+```
 
 
