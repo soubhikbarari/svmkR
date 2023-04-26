@@ -13,12 +13,6 @@ You can:
 
 **Note: This is the development branch, where new features for the coming release are being implemented and tested.**
 
-## Authors
-
-**`svmkR` was forked from the `surveymonkey` package in July 2022 [Soubhik Barari](https://github.com/soubhikbarari) while at Momentive.ai (maker of SurveyMonkey) and significantly re-designed and optimized (e.g. faster reads, more verbose outputs, handling of API errors and edge cases, etc.) with contributions from [Christopher Remmel](https://github.com/calremmel).**
-
-Previous versions of this package were written/maintained by [Thomas Leeper](https://github.com/leeper), [Sam Firke](https://github.com/sfirke), and [Matt Roumaya](https://github.com/mattroumaya).
-
 ## Installation
 
 To install the development version from GitHub:
@@ -155,3 +149,9 @@ package will print reminders of how many calls you have left in the day.
 The main thing to keep an eye on is respondent counts; as only 100
 responses can be fetched per API call, a survey with X respondents will
 make at least X/100 calls to the API.
+
+## Authors
+
+**`svmkR` was forked from the `surveymonkey` package in July 2022 [Soubhik Barari](https://github.com/soubhikbarari) while at Momentive.ai (maker of SurveyMonkey) and significantly re-designed and optimized (e.g. faster reads, more verbose outputs, handling of API errors and edge cases, etc.) with contributions from [Christopher Remmel](https://github.com/calremmel).**
+
+Previous versions of this package were written/maintained by [Thomas Leeper](https://github.com/leeper), [Sam Firke](https://github.com/sfirke), and [Matt Roumaya](https://github.com/mattroumaya).
