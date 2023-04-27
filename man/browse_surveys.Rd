@@ -49,15 +49,15 @@ By default is NULL. Use \code{browse_surveys('everything')} to pull all fields.}
 By default, retrieved from \code{get_token()}.}
 }
 \value{
-A list of objects of class \code{sm_survey}.
+A dataframe of surveys and associated metadata from desired account.
 }
 \description{
-Get the list of the user's surveys.
+Retrieve a dataframe of the user's surveys.
 }
 \details{
-This function calls the SurveyMonkey API using the current oauth token and returns
-a list of surveys filtered by the parameters entered.
+This function calls the SurveyMonkey API using the current OAuth token and returns
+a dataframe of surveys filtered by the parameters entered.
 }
 \references{
-SurveyMonkey API V3 at \url{https://developer.surveymonkey.com/api/v3/#surveys}
+SurveyMonkey API V3 at \url{https://developer.surveymonkey.com/api/v3/#surveys}.
 }

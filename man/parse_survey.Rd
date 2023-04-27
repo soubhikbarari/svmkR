@@ -7,28 +7,32 @@
 parse_survey(
   surv_obj,
   oauth_token = get_token(),
-  parallel = FALSE,
-  ...,
-  fix_duplicates = c("error", "drop", "keep")
+  col_names = "id",
+  col_fill = TRUE,
+  ...
 )
 }
 \arguments{
-\item{surv_obj}{a survey, the result of a call to \code{fetch_survey_obj}.}
+\item{surv_obj}{A survey, the result of a call to \code{fetch_survey_obj}.}
 
 \item{oauth_token}{Your OAuth 2.0 token. By default, retrieved from
 \code{get_token()}.}
 
-\item{parallel}{process respondents in parallel across all available cores?}
+\item{col_names}{Set column names either to names ("name") or IDs ("id", default). Depending on question types, column names will be formatted as one of the following where each `{}` element is either an ID or a name:
+\itemize{
+  \item '\{question heading\}'
+  \item '\{question heading\} - Other'
+  \item '\{question heading\} - \{matrix row\}'
+  \item '\{question heading\} - \{matrix row\} - \{matrix column\}'
+}}
 
-\item{...}{additional arguments to pass on to \code{get_responses}.  See the documentation
+\item{col_fill}{For the columns extracted from a multi-select question, how to fill in values. Choices are either TRUE or "name" denoting the name of each question choice. Default is TRUE.}
+
+\item{...}{Additional arguments to pass on to \code{get_responses}.  See the documentation
 \code{?get_responses} where these arguments are listed.}
-
-\item{fix_duplicates}{character if 'error', the default detection of duplicate data will result
-in an error being raised, otherwise allow the function to return. If 'keep' duplicate results
-will be retained, if 'drop' duplicates will be removed from the results.}
 }
 \value{
-a data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
+A data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
 }
 \description{
 Take a survey object and parses it into a tidy data.frame (optimized).
