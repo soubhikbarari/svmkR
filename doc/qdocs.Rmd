@@ -12,11 +12,9 @@ vignette: >
 
 <font size="5">QDOC is a new format for writing survey questionnaires.</font>
 
-<font size="4">It involves the usage of HTML-style tags to express survey questions unambiguously.</font>
+It involves the usage of HTML-style tags to express survey questions unambiguously.
 
-<font size="4">Most importantly, it can be easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.</font>
-
-<font size="3">
+Most importantly, it can be easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.
 
 # Overview
 

@@ -1,37 +1,39 @@
 ---
-title: "Introducing QDOC: A Flexible Text Format for (Q)uestionnaire (Doc)uments"
-output: rmarkdown::html_vignette
+title: "A Guide to QDOC: A Flexible Text Format for (Q)uestionnaire (Doc)uments"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: true
 vignette: >
   %\VignetteIndexEntry{qdocs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-### QDOC is a flexible format for your survey questionnaire document that uses tags to allow it to easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.
+<font size="5">QDOC is a new format for writing survey questionnaires.</font>
 
-**Table of Contents:**
+It involves the usage of HTML-style tags to express survey questions unambiguously.
 
-1. [Overview](#overview)
-2. [QDOC Tags](#qdoc-tags)
-3. [Question Families](#question-families):
-    - [Multiple Choice (Single Answer)](#multiple-choice-single-answer)
-    - [Multiple Choice (Multi Answer)](#multiple-choice-multi-answer)
-    - [Matrix](#matrix)
-    - [Open Ended](#open-ended)
+Most importantly, it can be easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.
 
 # Overview
 
-There are three ways to write a questionnaire up as a QDOC:
+There are two ways to write a plain-text questionnaire up as a QDOC:
 
-- There is a **simple format** for plain-text files that resembles how you might normally write survey questions (i.e. not explicitly writing out each type), but leaves less flexibility for multi-line choices/rows/columns.
+- A **simple format** which:
+  * allows you to quickly and conveniently write questions
+  * but doesn't allow for multi-line choices/rows/columns
 
-- There is an **advanced format** for plain-text files that requires more specificity (e.g. what type of question each question is, where the heading ends and the choices begin, delineate each choice), but leaves less room for error in parsing multi-line choices/rows/columns.
 
-- There is a **Google Doc format** for Google Doc documents that largely resembles the simple format, but takes advantage of indented lists to unambiguously structure question choices, rows, columns, etc.
+- An **advanced format**: 
+  * leaves less ambiguity / room for error in parsing multi-line choices, rows, columns
+  * but requires more specificity (e.g. question type, delineating choices)
 
-The QDOC format is meant to be compatible with both the [SurveyMonkey API](https://developer.surveymonkey.com/api/v3/) and with [Qualtrics](https://www.qualtrics.com/support/survey-platform/survey-module/survey-tools/import-and-export-surveys/).
+*QDOCs can also be written up in Google Docs so long as they conform to either format.*
 
-# QDOC Tags
+The QDOC format is meant to be compatible with both the [SurveyMonkey API](https://developer.surveymonkey.com/api/v3/) and with [Qualtrics text formats](https://www.qualtrics.com/support/survey-platform/survey-module/survey-tools/import-and-export-surveys/).
+
+# Tag Syntax
 
 The following tags are to be used in simple-text, advanced-text, or Google Doc questionnaires. Note that these should be case-insensitive (i.e. **[[PAGE]]** operates the same as **[[Page]]**):
 
@@ -52,25 +54,25 @@ The following tags are to be used in simple-text, advanced-text, or Google Doc q
 - **[[Columns]]**: Denote the start of line-separated column labels for the present matrix question.
   - aliases: **[[Answers]]**, **[[Cols]]**
 
-- **[[{Family}]]**: Denote that the present question is of a particular *family*. Can put anywhere in the question text or heading.
+- **[[{*Family*}]]**: Denote that the present question is of a particular *family*. Can put anywhere in the question text or heading.
 
-- **[[ID:{Question Bank ID}]]**: To be replaced with text of question with specified ID from SurveyMonkey Question Bank.
+- **[[ID:{*Question Bank ID*}]]**: To be replaced with text of question with specified ID from SurveyMonkey Question Bank.
 
 The following tags are to be used in advanced-text questionnaires:
 
-- **[[Question:{Family}]]**: Specify the *family* for the question that follows this tag. Must insert before question text. Values include:
+- **[[Question:{*Family*}]]**: Specify the *family* for the question that follows this tag. Must insert before question text. Values include:
 
   - `MultipleChoice` (aliases: `MC`)
   - `Matrix`
   - `Datetime`
   - `OpenEnded` (aliases: `TextEntry`, `TE`, `Open`)
 
-- **[[Question:{Type}:{Subtype}]]**: Specify the *subtype* within the specified family (e.g. Multi-Select, Menu Dropdown) for the question that follows this tag. Must insert before question text.
+- **[[Question:{*Type*}:{*Subtype*}]]**: Specify the *subtype* within the specified family (e.g. Multi-Select, Menu Dropdown) for the question that follows this tag. Must insert before question text.
 
-- **[[Advanced{Choices|Rows|Columns}]]**: Denote the start of possibly multi-line choices/rows/columns. Must then denote the start each choice/row/column with **[[Choice]]** or **[[Row]]** or **[[Column]]**.
+- **[[Advanced{*Choices|Rows|Columns*}]]**: Denote the start of possibly multi-line choices/rows/columns. Must then denote the start each choice/row/column with **[[Choice]]** or **[[Row]]** or **[[Column]]**.
 
 
-The following are values for subtype that can either be specified either alone in simple-text mode (e.g. **[[{Subtype}]]**) or attached to the question type in advanced-text mode (see above):
+The following are values for subtype that can either be specified either alone in simple-text mode (e.g. **[[{*Subtype*}]]**) or attached to the question type in advanced-text mode (see above):
 
   - `Vertical`
   - `Dropdown` or `Menu`
