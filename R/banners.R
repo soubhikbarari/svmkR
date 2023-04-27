@@ -294,17 +294,15 @@ make_banners <- function(data,
   
 }
 
-#' Format and save banner object to file / Google Drive.
+#' Format and save banner object to file.
 #' 
-#' Take the output from a call to \code{make_banners}, populate a spreadsheet with the banner data, format/stylize it in the SurveyMonkey research format, and save it locally and/or to a Google Drive folder. Currently allows for up to one level of nesting in columns.
+#' Take the output from a call to \code{make_banners}, populate a spreadsheet with the banner data, format/stylize it in the SurveyMonkey research format, and save it locally. Currently allows for up to one level of nesting in columns.
 #'
 #' @param banners.output output list from a call to \code{make_banners()}.
 #' @param title title of the tab/sheet.
 #' @param file.path local file path to save banners as \code{.xlsx} file.
 #' @param file.overwrite whether or not to overwrite the file specified at \code{file.path}; otherwise keep both and update the file path.
 #' @param file.append whether or not to append the current tab to the file specified at \code{file.path} if it exists; if there is already a tab with the name specified, update the tab name.
-#' @param drive.folder.path folder path in Google Drive to upload banners spreadsheet.
-#' @param drive.overwrite if \code{drive.folder.path} is specified, whether or not to overwrite/update file in Google Drive if it already exists; otherwise upload the file with the same name but an updated timestamp.
 #' @param tab.name name of the tab/sheet to populate.
 #' @param logo whether or not to include either the SurveyMonkey logo ("svmk") or the Momentive logo ("mntv") in the banner headers.
 #' @param include.moe whether or not to include the Margin of Error for the survey in the banner headers.
@@ -399,18 +397,19 @@ make_banners <- function(data,
 #'                sub_services_1 = "Which of the following services would you be willing to pay a recurring subscription for in a car?") 
 #' # Make and save banners  
 #' auto.evs.banners <- auto.evs.coded %>%
-#'   make_banners(row.vars           = list("purchase","vehage","ev_heard*",c("mech_factors_1","mech_factors_2","mech_factors_3","mech_factors_4")), 
-#'                col.vars           = list("age3","educ2",c("sub_services_1","sub_services_2","sub_services_3","sub_services_4")), 
-#'                weight.var         = "weight_genpop", 
-#'                date.var           = "response_date", 
-#'                total.row.position = "below", 
-#'                preview            = TRUE) %>%
-#'   write_banners(file.path         = "auto_evs.xlsx",
-#'                 file.overwrite    = TRUE,
-#'                 title             = "Automative/Electric Vehicles Study",
-#'                 logo              = "mntv",
-#'                 drive.overwrite   = TRUE,
-#'                 drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")
+#'   make_banners(row.vars            = list("purchase","vehage","ev_heard*",c("mech_factors_1","mech_factors_2","mech_factors_3","mech_factors_4")), 
+#'                col.vars            = list("age3","educ2",c("sub_services_1","sub_services_2","sub_services_3","sub_services_4")), 
+#'                weight.var          = "weight_genpop", 
+#'                date.var            = "response_date", 
+#'                total.row.position  = "below", 
+#'                preview             = TRUE) %>%
+#'   write_banners(file.path          = "auto_evs.xlsx",
+#'                 file.overwrite     = TRUE,
+#'                 title              = "Automative/Electric Vehicles Study",
+#'                 logo               = "mntv") %>%
+#'   upload_banners(drive.overwrite   = TRUE,
+#'                  drive.file.name   = "Auto EVs Crosstabs",
+#'                  drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")
 #' }
 write_banners <- function(banners.output, 
                           title = "Main",
@@ -685,26 +684,167 @@ write_banners <- function(banners.output,
       openxlsx::saveWorkbook(wb, file.path, overwrite = TRUE)
       message(sprintf("SAVED excel file to `%s`.", file.path))
     }
-    
-    if (!is.null(drive.folder.path)) {
-      file.name <- basename(file.path)
-      sheet.name <- gsub("\\.[a-zA-Z0-9]*$","", file.name)
-      warning("Use `googledrive::drive_auth()` if Google Drive authentication fails.")
-      
-      drive.folder.files <- googledrive::drive_ls(drive.folder.path)
-      
-      if (sheet.name %in% drive.folder.files$name & drive.overwrite) {
-        googledrive::drive_update(file = first(drive.folder.files$id[drive.folder.files$name == sheet.name]),
-                                  media = file.path.0)
-      } else {
-        googledrive::drive_upload(media = file.path.0, 
-                                  name = sheet.name,
-                                  path = googledrive::as_dribble(drive.folder.path), 
-                                  overwrite = TRUE,
-                                  type = "spreadsheet")
-      }
-    }
+
   }
   
   return(wb)
 }
+
+#' Upload banners file to Google Drive.
+#' 
+#' Take the output from a call to \code{make_banners} or a file path where an Excel sheet is saved and upload to Google Drive location of choice.
+#'
+#' @param banners.output output list from a call to \code{make_banners()}. Must specify either this or \code{file.path}.
+#' @param file.path local file path to save banners as \code{.xlsx} file. Must specify either this or \code{banners.output}.
+#' @param drive.file.name name of Google Drive sheets file. Must specify this if inputting a \code{banners.output} and \code{file.path} is not specified (in which case the default name is the same as \code{file.path}).
+#' @param drive.folder.path folder path in Google Drive to upload banners spreadsheet.
+#' @param drive.overwrite if \code{drive.folder.path} is specified, whether or not to overwrite/update file in Google Drive if it already exists; otherwise upload the file with the same name but an updated timestamp.
+#' @export
+#' @examples
+#' data(auto.evs)
+#' if (FALSE) { ## not run
+#' # Prepare data for banners
+#' auto.evs.coded = auto.evs %>%
+#'   let(
+#'     ## code/label categorical variables
+#'     age3 = recode(age,
+#'                   "18-34" = 18 %thru% 34 ~ 1, 
+#'                   "35-64" = 35 %thru% 64 ~ 2, 
+#'                   "65+"   = 65 %thru% hi ~ 3),
+#'     gender  = recode(gender,
+#'                      "Male"   = 1 ~ 1,
+#'                      "Female" = 2 ~ 2),
+#'     income3 = recode(as.numeric(income),
+#'                      "<$50k"     = 1 %thru% 3 ~ 1,
+#'                      "$50k-100k" = 4 %thru% 5 ~ 2,
+#'                      ">$100k"    = 6 %thru% 7 ~ 3,
+#'                      "No answer" = 8 ~ 4),
+#'     educ2 = recode(as.numeric(education),
+#'                    "<HS-College" = 1 %thru% 4 ~ 1,
+#'                    ">College"    = 5 %thru% 6 ~ 2),
+#'     purchase = recode(purchase,
+#'                       "Purchased new"                            = 1 ~ 1,
+#'                       "Purchased used (non-certified pre-owned)" = 2 ~ 2,
+#'                       "Purchased used (certified pre-owned)"     = 3 ~ 3,
+#'                       "Leased new"                               = 4 ~ 4,
+#'                       "Leased used"                              = 5 ~ 5,
+#'                       "Other"                                    = 6 ~ 6),
+#'     vehage = recode(vehage,
+#'                     "Less than 1 year old"   = 1 ~ 1,
+#'                     "1 - 2 years old"        = 2 ~ 2,
+#'                     "3 - 5 years old"        = 3 ~ 3,
+#'                     "6 - 10 years old"       = 4 ~ 4,
+#'                     "More than 10 years old" = 5 ~ 5),
+#'     vehcost = recode(vehcost,
+#'                      "Under $5,000"      = 1 ~ 1,
+#'                      "$5,000 - $9,999"   = 2 ~ 2,
+#'                      "$10,000 - $19,999" = 3 ~ 3,
+#'                      "$20,000 - $29,999" = 4 ~ 4,
+#'                      "$30,000 - $39,999" = 5 ~ 5,
+#'                      "$40,000 - $49,999" = 6 ~ 6,
+#'                      "$50,000 - $59,999" = 7 ~ 7,
+#'                      "$60,000 or more"   = 8 ~ 8),
+#'     ## label multi-response variables
+#'     ## note: make sure to re-code dichotomous "one-hot encoded" columns into distinct level
+#'     ev_heard_1 = recode(ev_heard_1, "Audi e-tron" = 1 ~ 1),
+#'     ev_heard_2 = recode(ev_heard_2, "BMW i3" = 1 ~ 2),
+#'     ev_heard_3 = recode(ev_heard_3, "Cadillac LYRIQ" = 1 ~ 3),
+#'     ev_heard_4 = recode(ev_heard_4, "Chevrolet Bolt" = 1 ~ 4),
+#'     ev_heard_5 = recode(ev_heard_5, "Faraday Future" = 1 ~ 5),
+#'     ev_heard_6 = recode(ev_heard_6, "Fisker" = 1 ~ 6),
+#'     ev_heard_7 = recode(ev_heard_7, "Hyundai Electric" = 1 ~ 7),
+#'     ev_heard_8 = recode(ev_heard_8, "Jaguar I-Pace" = 1 ~ 8),
+#'     ev_heard_9 = recode(ev_heard_9, "Kia Niro EV" = 1 ~ 9),
+#'     ev_heard_10 = recode(ev_heard_10, "Lucid Motors" = 1 ~ 10),
+#'     
+#'     mech_factors_1 = recode(mech_factors_1, "Price / affordability" = 1 ~ 1),
+#'     mech_factors_2 = recode(mech_factors_2, "Convenience" = 1 ~ 2),
+#'     mech_factors_3 = recode(mech_factors_3, "Trust / relationship" = 1 ~ 3),
+#'     mech_factors_4 = recode(mech_factors_4, "Availability" = 1 ~ 4),
+#'     
+#'     sub_services_1 = recode(sub_services_1, "In-car internet" = 1 ~ 1),
+#'     sub_services_2 = recode(sub_services_1, "Remote car start capability" = 1 ~ 2),
+#'     sub_services_3 = recode(sub_services_1, "Live traffic / navigation" = 1 ~ 3),
+#'     sub_services_4 = recode(sub_services_1, "In-vehicle safety and security" = 1 ~ 4),
+#'     sub_services_5 = recode(sub_services_1, "Multiple driver profiles" = 1 ~ 5),
+#'     sub_services_6 = recode(sub_services_1, "Cloud dash cam monitoring" = 1 ~ 6),
+#'     sub_services_7 = recode(sub_services_1, "Car software updates" = 1 ~ 7),
+#'     sub_services_8 = recode(sub_services_1, "AI- and self-driving capabilities" = 1 ~ 8),
+#'     sub_services_9 = recode(sub_services_1, "Car-only media and streaming services" = 1 ~ 9),
+#'     sub_services_10 = recode(sub_services_1, "Heated seats" = 1 ~ 10)
+#'   ) %>%
+#'   apply_labels(gender         = "Gender",
+#'                age3           = "Age: 3 categories",
+#'                educ2          = "Education",
+#'                income3        = "Income",
+#'                vehage         = "How old is your main vehicle?",
+#'                vehcost        = "In total, how much did you pay to buy or lease your main vehicle?",
+#'                purchase       = "How did you purchase or lease your main vehicle?",
+#'                ## note: for multiresponse variables, only need to name one column
+#'                ev_heard_1     = "Which of the following electric vehicles have you heard of?",
+#'                mech_factors_1 = "Select the top 3 factors that are most important to you when selecting an auto repair provider:",
+#'                sub_services_1 = "Which of the following services would you be willing to pay a recurring subscription for in a car?") 
+#' # Make and save banners  
+#' auto.evs.banners <- auto.evs.coded %>%
+#'   make_banners(row.vars            = list("purchase","vehage","ev_heard*",c("mech_factors_1","mech_factors_2","mech_factors_3","mech_factors_4")), 
+#'                col.vars            = list("age3","educ2",c("sub_services_1","sub_services_2","sub_services_3","sub_services_4")), 
+#'                weight.var          = "weight_genpop", 
+#'                date.var            = "response_date", 
+#'                total.row.position  = "below", 
+#'                preview             = TRUE) %>%
+#'   write_banners(file.path          = "auto_evs.xlsx",
+#'                 file.overwrite     = TRUE,
+#'                 title              = "Automative/Electric Vehicles Study",
+#'                 logo               = "mntv") %>%
+#'   upload_banners(drive.overwrite   = TRUE,
+#'                  drive.file.name   = "Auto EVs Crosstabs",
+#'                  drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")
+#' }
+upload_banners <- function(banners.output = NULL,
+                           file.path = NULL,
+                           drive.file.name = NULL,
+                           drive.folder.path,
+                           drive.overwrite = TRUE) {
+  
+  if (is.null(banners.output) & is.null(file.path)) {
+    stop("Must specify either `banners.output` or `file.path`.")
+  }
+  
+  if (is.null(drive.file.name) & is.null(file.path)) {
+    stop("Must specify `drive.file.name` if uploading directly from a banner object.")
+  }  
+  
+  # Save
+  if (!is.null(file.path) & is.null(drive.file.name)) {
+    drive.file.name <- basename(file.path)
+  } else {
+    drive.file.name <- basename(drive.file.name)
+  }
+  
+  if (!is.null(banners.output)) {
+    file.path <- "tmp.xslx"
+    openxlsx::saveWorkbook(wb, file.path, overwrite = TRUE)
+  }
+  
+  warning("Use `googledrive::drive_auth()` if Google Drive authentication fails.")
+  
+  drive.folder.files <- googledrive::drive_ls(drive.folder.path)
+  
+  if (drive.file.name %in% drive.folder.files$name & drive.overwrite) {
+    googledrive::drive_update(file = first(drive.folder.files$id[drive.folder.files$name == drive.file.name]),
+                              media = file.path)
+  } else {
+    googledrive::drive_upload(media = file.path, 
+                              name = drive.file.name,
+                              path = googledrive::as_dribble(drive.folder.path), 
+                              overwrite = TRUE,
+                              type = "spreadsheet")
+  }
+  if (file.path == "tmp.xslx") {
+    file.remove(file.path)
+  }
+  
+  message("DONE.")
+}
+
+

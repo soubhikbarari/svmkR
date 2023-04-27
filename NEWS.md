@@ -5,6 +5,7 @@
 * Added modules to create surveys from this package. Ex:
   - `read_qdoc`: read a questionnaire from txt file
   - `upload_qdoc`: upload questionnaire file
+* Separate `write_banners` into `write_banners` and `upload_banners`
 
 ## svmkR v0.2.2 (Release date: 2023-04-25)
 

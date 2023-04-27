@@ -101,10 +101,12 @@ qdoc.question <- function(text,
     q$headings <- list(get_heading(text))
     
   } else {
-    q <- list()
-    if (!quiet.fail) {
-      stop("couldn't discern question family")
-    }
+    warning(sprintf("\nCouldn't discern question family for:\n'%s'\nDefaulting to open-ended.\n",text))
+    
+    class(q) <- c("qdoc.open_ended", "list")
+    q$family <- "open_ended"
+    q$subtype <- get_subtype(text, q$family)
+    q$headings <- list(get_heading(text))
   }
   
   q <- modifyList(q, get_question_params(text))
@@ -140,7 +142,7 @@ qdoc.q <- qdoc.question
 #' 
 #' read_qdoc(text = qdoc.simple) # simple format
 #' read_qdoc(text = qdoc.adv)    # advanced format
-#' 
+#'
 read_qdoc <- function(file.path = NULL, 
                       text = NULL, 
                       oauth_token = get_token()) {
@@ -164,14 +166,16 @@ read_qdoc <- function(file.path = NULL,
   qualtrics.adv <- grepl("\\[\\[AdvancedFormat\\]\\]", qdoc.text)
   
   # delimit pages or blocks
-  delim.tags <- c("Block","block","BLOCK",
-                  "Page","page","PAGE",
-                  "PageBreak","Pagebreak","pagebreak","PAGEBREAK")
+  delim.names <- c("Block","block","BLOCK",
+                   "Page","page","PAGE",
+                   "PageBreak","Pagebreak","pagebreak","PAGEBREAK")
+  delim.name <- paste0("(",paste0(delim.names, collapse="|"),")")
   
-  delim <- paste0("[\r\n]+(?=(", paste0(sprintf("\\[\\[%s\\:*[a-zA-Z\\: ]*\\]\\]", delim.tags), collapse="|"), "))")
+  #delim <- paste0("[\r\n]+(?=(", paste0(sprintf("\\[\\[%s\\:*[a-zA-Z\\: ]*\\]\\]", delim.name), collapse="|"), "))")
+  delim <- sprintf("\\[\\[%s\\:*[a-zA-Z\\: ]*\\]\\]", delim.name)
   
   qdoc.text <- stringr::str_split(qdoc.text, delim)[[1]]
-  qdoc.text <- gsub(delim,"",qdoc.text)
+  #qdoc.text <- gsub(delim,"",qdoc.text)
   
   # establish first block
   qdoc.text <- trimws(qdoc.text)
@@ -213,9 +217,22 @@ read_qdoc <- function(file.path = NULL,
 #' @param theme_id Creates the survey using the theme provided (optional).
 #' @param ... Any additional parameters for upload POST call (see API reference).
 #' @param oauth_token Your OAuth 2.0 token. By default, retrieved from \code{get_token()}.
+#'
 #' @return Upload status and metadata (e.g. assigned survey ID, edit URL) as a dataframe.
+#'
 #' @references SurveyMonkey \code{POST /survey} API V3 at \url{https://developer.surveymonkey.com/api/v3/#api-endpoints-post-surveys}.
+#'
 #' @export
+#'
+#' @examples
+#' data(qdocs)
+#'
+#' set_token("XXXXXXX")
+#' 
+#' my_qdoc <- read_qdoc(text = qdoc.simple) 
+#' 
+#' upload_qdoc(my_qdoc, title = "My Survey")
+#'
 upload_qdoc <- function(qdoc,
                         title,
                         from_template_id = NULL,
@@ -247,5 +264,14 @@ upload_qdoc <- function(qdoc,
   message("OK.")
   
   uploaded_content <- dplyr::bind_rows(unlist(uploaded_content))
+  
+  invisible(tryCatch({
+    system(paste("open", uploaded_content$edit_url))
+  }, warning = function(w) {
+    message(sprintf("Warning in %s: %s", deparse(w[["call"]]), w[["message"]]))
+  }, error = function(e) {
+    message(sprintf("Error in %s: %s", deparse(e[["call"]]), e[["message"]]))
+  }))
+  
   return(uploaded_content)
 }

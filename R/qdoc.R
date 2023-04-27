@@ -1,6 +1,7 @@
 strip_qdoc_tags <- function(x) {
-  x <- gsub("\\[\\[[a-zA-Z0-9 \\:]*\\]\\]", "", x)
+  x <- gsub("\\[\\[.*?\\]\\]", "", x)
   x <- gsub("  "," ", x)
+  x <- trimws(x)
   return(x)
 }
 
@@ -92,10 +93,16 @@ print.qdoc.matrix <- function(x) {
   }
   
   rows <- sapply(x$answers$rows, function(y) y$text)
-  row.tab.size <- max(nchar(rows))
-  row.tab <- paste0(rep(" ", row.tab.size), collapse="")
   cols <- sapply(x$answers$choices, function(y) y$text)
+  
+  rows <- gsub("\\n"," ", rows)
+  cols <- gsub("\\n"," ", cols)
+  rows <- ifelse(nchar(rows) > 50, paste0(substr(rows, 1, 50),"..."), rows)
+  cols <- ifelse(nchar(cols) > 50, paste0(substr(cols, 1, 50),"..."), cols)
+  
+  row.tab.size <- max(nchar(rows))
   col.tab.size <- max(nchar(cols))
+  row.tab <- paste0(rep(" ", row.tab.size), collapse="")
   col.tab <- paste0(rep(" ", col.tab.size), collapse="")
   
   cat(sanitize(x[["headings"]][[1]][[1]]))
