@@ -128,9 +128,10 @@ qdoc.q <- qdoc.question
 #' generates an object that is ready to be uploaded as a survey.
 #' See \code{vignette("qdocs")} for a guide to the QDOC format.
 #'
-#' @param file.path Path of questionnaire written in proper QDOC format.
+#' @param file File for questionnaire written in proper QDOC format.
+#' @param gdoc File in Google Drive for Google Doc questionnaire written in proper QDOC format. See \code{drive_download} for acceptable formats (e.g. URL, file ID, or \code{dribble} object if you're fancy).
 #' @param text Character string written in in proper QDOC format.
-#' @param oauth_token Your OAuth 2.0 token (only needed if questionnaire references question bank). By default, retrieved from get_token().
+#' @param oauth_token Your OAuth 2.0 token (only needed if questionnaire references question bank or templates). By default, retrieved from get_token().
 #' @return Output of class \code{qdoc}.
 #'
 #' @export
@@ -143,7 +144,8 @@ qdoc.q <- qdoc.question
 #' read_qdoc(text = qdoc.simple) # simple format
 #' read_qdoc(text = qdoc.adv)    # advanced format
 #'
-read_qdoc <- function(file.path = NULL, 
+read_qdoc <- function(file = NULL,
+                      gdoc = NULL,
                       text = NULL, 
                       oauth_token = get_token()) {
   # Process a questionnaire written in the Qualtrics TXT format
@@ -154,12 +156,21 @@ read_qdoc <- function(file.path = NULL,
   qdoc <- list()
   class(qdoc) <- c("qdoc", class(qdoc))
   
-  if (is.null(file.path) & is.null(text)) {
-    stop("Must specify either `file.path` or `text`.")
-  } else if (!is.null(file.path)) {
-    qdoc.text <- paste0(readLines(file.path), collapse="\n")
+  if (is.null(file) & is.null(text) & is.null(gdoc)) {
+    stop("Must specify either `file` or `gdoc` or `text`.")
+  } else if (!is.null(gdoc)) {
+    if (nchar(gdoc) == 44) {
+      gdoc <- sprintf("https://docs.google.com/document/d/%s/", gdoc)
+    } else if (!(grepl("docs\\.google", gdoc) & grepl("\\/document\\/", gdoc))) {
+      warning("It doesn't look you're passing in a Google Doc...trying anyways")
+    }
+    googledrive::drive_download(gdoc, path = "tmp.txt", overwrite = TRUE)
+    qdoc.text <- paste(readLines("tmp.txt"), collapse="\n")
+    file.remove("tmp.txt")
+  } else if (!is.null(file)) {
+    qdoc.text <- paste0(readLines(file), collapse="\n")
   } else {
-    qdoc.text <- text
+    qdoc.text <- paste0(text, collapse="\n")
   }
   attr(qdoc, "text") <- qdoc.text
   
