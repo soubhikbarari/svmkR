@@ -137,10 +137,10 @@ parse_survey <- function(surv_obj,
   message("+ Levelling columns 🗂")
   for (level.var in names(surv_obj$choices)) {
     if (col_names == "id") {
-      col.levels <- surv_obj$choices[[level.var]]
+      col.levels <- unique(surv_obj$choices[[level.var]])
       col.vars <- colnames(records)[grepl(level.var, colnames(records))]
     } else {
-      col.levels <- surv_obj$choices[[level.var]]
+      col.levels <- unique(surv_obj$choices[[level.var]])
       col.vars <- names(labels[startsWith(unlist(labels), level.var)])
     }
     for (col.var in col.vars) {
