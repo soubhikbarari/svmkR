@@ -85,15 +85,15 @@ simu_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
   if (!random) set.seed(100)
   
   if (is.null(x) & (!is.null(n) | !is.null(weights))) {
-    message("estimating Maximum Margin of Error")
+    message("Estimating Maximum Margin of Error")
     # We are asking: what would the largest margin of error be for 
     # an estimated proportion -- i.e. the CI around a y/n question 
     # with an even split in the population? (this is the highest possible 
     # variance Bernoulli population distribution)    
   } else if (!is.null(x)) {
-    message("estimating Margin of Error given `x`")
+    message("Estimating Margin of Error given `x`")
   } else {
-    stop("must specify either `x` or `n`/`weights`")
+    stop("Must specify either `x` or `n`/`weights`")
   }
   
   n <- c(n, length(x), length(weights))[1]
@@ -108,8 +108,8 @@ simu_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
   } else {
     x <- as.numeric(as.numeric(x) %in% c(1))
     x <- x[!is.na(x)]
-    if (length(x) != length(wt)) stop("length of `x` doesn't match up with `weights`")
-    if (length(x)==0 | length(wt)==0) stop("no non-null values in `x` or `weights`")
+    if (length(x) != length(wt)) stop("Length of `x` doesn't match up with `weights`")
+    if (length(x)==0 | length(wt)==0) stop("No non-null values in `x` or `weights`")
     pop.yes <- x
     pop.prob <- sum(x * wt)/sum(wt)
   }

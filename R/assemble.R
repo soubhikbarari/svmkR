@@ -35,7 +35,7 @@ parse_survey <- function(surv_obj,
     stop("Must pass either TRUE or 'name' to col_fill.")
   }
   
-  message("+ Getting responses 🎣")
+  message("Getting responses 🎣")
   
   time_start <- Sys.time()
   respondents <- get_responses(surv_obj$id, oauth_token = oauth_token, ...)
@@ -43,7 +43,7 @@ parse_survey <- function(surv_obj,
   time_taken <- time_end - time_start
   print(time_taken)
   
-  message("+ Parsing responses ⛏")
+  message("Parsing responses ⛏")
   
   surv_obj$col_fill <- col_fill
   
@@ -102,7 +102,7 @@ parse_survey <- function(surv_obj,
     return(dplyr::bind_cols(record))
   })
   
-  message("+ Merging responses 🤝")
+  message("Merging responses 🤝")
   
   records <- dplyr::bind_rows(recordsList)
   records$survey_id <- surv_obj$id
@@ -134,7 +134,7 @@ parse_survey <- function(surv_obj,
   colnames(records) <- gsub("  ", " ", colnames(records))
   names(labels) <- gsub("  "," ", names(labels))
   
-  message("+ Levelling columns 🗂")
+  message("Levelling columns 🗂")
   for (level.var in names(surv_obj$choices)) {
     if (col_names == "id") {
       col.levels <- unique(surv_obj$choices[[level.var]])
@@ -152,7 +152,7 @@ parse_survey <- function(surv_obj,
     }
   }
   
-  message("+ Labelling columns 🗂")
+  message("Labelling columns 🗂")
   
   labels$collector_id <- "Collector ID"
   labels$collection_mode <- "Collector mode"

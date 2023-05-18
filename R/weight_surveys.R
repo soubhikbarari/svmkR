@@ -1,3 +1,60 @@
+#' Look up SurveyMonkey target populations
+#' 
+#' Look up all of the target population profiles (i.e. specific variables and their marginal and joint distributions) available to weight your survey to.
+#'
+#' @export
+list_targets <- function() {
+  targets.dirpath <- system.file("extdata", "targets", package = "svmkR")
+  targets <- dir(targets.dirpath)
+  return(targets)
+}
+
+#' Get a SurveyMonkey target population
+#' 
+#' Read in a default target population  (i.e. specific variables and their marginal and joint distributions) available through this package for you to weight your survey to.
+#'
+#' @export
+get_target <- function(name) {
+  target.dirpath <- system.file("extdata", "targets", name, package = "svmkR")
+  if (target.dirpath == "") stop(sprintf("Could not find a target distribution named `%s`", name))
+  target.files <- dir(target.dirpath)
+  target.filepaths <- file.path(target.dirpath, target.files)  
+  target <- lapply(target.filepaths, function(.) suppressMessages(readr::read_csv(.)))
+  names(target) <- gsub("\\.csv", "", target.files)  
+  class(target) <- c("target", class(target))
+  return(target)
+}
+
+#' @method print target
+#' @export
+print.target <- function(target) {
+  cat(sprintf("%d marginal distributions:\n\n", length(target)))
+  for (t in 1:length(target)) {
+    if (any(!is.null(names(target)))) {
+      name <- names(target)[t]  
+      message(sprintf("\033[0;32m%s\033[0m:", name))
+    }
+    print(target[[t]])
+    prompt = "* Press [enter] to continue"
+    invisible(readline(prompt=prompt))
+    cat(paste0(rep("\b", nchar(prompt)+1), collapse=""))      
+  }
+}
+
+check_target <- function(target) {
+  for (t in 1:length(target)) {
+    if (!("data.frame" %in% class(target[[t]]))) 
+      stop(sprintf("Entry %d in target is not a valid dataframe", t))
+    if (!("target" %in% colnames(target[[t]])))
+      stop(sprintf("Entry %d in target does not have a `target` column", t))
+  }
+}
+
+find_stems <- function(q) {
+  # for multi-select questions
+  return(unique(gsub(" - .*", "", q)))
+}
+
 #' Weight your survey
 #'
 #' Generate statistical weights for your survey responses to better represent some population of interest.
@@ -5,38 +62,50 @@
 #' The default SurveyMonkey to weight surveys is via raking. For an overview of raking, see \href{https://www.abtassociates.com/raking-survey-data-aka-sample-balancing}{this guide}.
 #'
 #' @param data input survey data frame.
-#' @param target name of target population, see \code{us_genpop_targets()} for options.
+#' @param target either name of target population (run \code{list_targets()} for options) or a list of dataframes corresponding to different population distributions to weight survey to.
 #' @param auto.remove remove any weighting variables that can't be found in survey.
 #' @param initial.weights initial set of weights as starting point for raking algorithm.
 #' @param trim.weights percentiles to trim your weights (default are 0.01 and .99, or 1\% and 99\%); can specify either an upper percentile or both a lower and upper percentile.
+#' @param verbose output helpful progress and warning messages (recommended).
 #' @export
-weight_to_US_genpop <- function(data,
-                                target = "acs18",
-                                auto.remove = TRUE,
-                                initial.weights = NULL,
-                                trim.weights = c(0.01, .99)) {
+weight_to <- function(data,
+                      target = "us_genpop_acs18",
+                      auto.remove = TRUE,
+                      initial.weights = NULL,
+                      trim.weights = c(0.01, .99),
+                      verbose = TRUE) {
+  data.cols <- colnames(data)
+  data.cols <- data.cols[!(data.cols %in% c("collector_id","collection_mode","survey_id","response_id","respondent_id","custom_value","response_status","date_created","date_modified","first_name","last_name","email_address","ip_address"))]
+  
   # read in target population margins
-  targets.dirpath <- system.file("extdata", "targets/us_genpop", target, package = "svmkR")
-  targets.files <- dir(targets.dirpath)
-  targets.filepaths <- file.path(targets.dirpath, targets.files)
-  targets <- lapply(targets.filepaths, function(.) suppressMessages(readr::read_csv(.)))
-  names(targets) <- gsub("\\.csv", "", targets.files)
+  if (all(typeof(target) == "character")) {
+    target <- get_target(target)
+  } else if (!("target" %in% class(d) | "list" %in% class(d))) {
+    stop("Doesn't look like you passed in a valid target. Must be named target distribution or a list of dataframes.")
+  }
+  check_target(target)
   
   # map to SVMK question bank
   qmap <- suppressMessages(readr::read_csv(system.file("extdata", "qmap.txt", package = "svmkR")))
   
   data$i <- 1:nrow(data)
-  data.targets <- data.frame(i = 1:nrow(data))
+  data.mapped <- data.frame(i = 1:nrow(data))
   target.codebook <- data.frame()
   target.vars.all <- c()
+  target.vars.failed <- c()
   margin.formulas <- list()
   pop.margins <- list()
-  for (t in 1:length(targets)) {
-    target.t <- targets[[t]]
+  for (t in 1:length(target)) {
+    target.t <- target[[t]]
     target.vars <- colnames(target.t)[grepl("[^(target)]", colnames(target.t))]
     
     for (v in 1:length(target.vars)) {
       target.var <- target.vars[v]
+      if (target.var %in% colnames(data.mapped))
+        next
+      if (target.var %in% target.vars.failed)
+        next
+      
       # find candidate 
       q.candidates <- qmap[tolower(qmap$variable_name) == tolower(target.var),]
       q.candidates.text <- unique(q.candidates$question_text)
@@ -45,6 +114,29 @@ weight_to_US_genpop <- function(data,
         cand.idx <- grepl(cand, data.cols, ignore.case = TRUE)
         if (any(cand.idx) == TRUE) {
           q.col.name <- data.cols[cand.idx]
+          if (length(q.col.name) > 1) {
+            # specific variables (e.g. race, party ID) may need multiple questions to code;
+            # here we collapse those multiple questions into a single column
+            race.rgx <- "(What is your race|Which racial group do you most identify with|What race or ethnicity best describes you|Which race or ethnicity best describes you)"
+            if (all(grepl(race.rgx, q.col.name))) {
+              q.col.name.stem <- find_stems(q.col.name)[1]
+              
+              data[q.col.name.stem] <- data[q.col.name] %>%
+                purrr::map2_df(q.col.name, ~replace(.x, .x==T, .y)) %>% 
+                apply(1, function(x) {
+                  # collapse any multi-racial respondents into "Other"
+                  ifelse(sum(!is.na(x)) == 1, x[!is.na(x)], 
+                         ifelse(sum(!is.na(x)) == 0, NA, "Other"))
+                })
+              q.col.name <- q.col.name.stem
+            } else if (FALSE) {
+              # TODO: add any others here (e.g. party ID) as needed, following the above format for coding race
+            } else {
+              # otherwise just pick the first matching question
+              q.col.name <- q.col.name[1]
+            }
+          }
+          
           q.col.map <- q.candidates[q.candidates$question_text == cand,]
           message(sprintf("﹂\033[0;32m`%s`\033[0m → \033[0;36m`%s`\033[0m", q.col.name, target.var))
           
@@ -53,28 +145,29 @@ weight_to_US_genpop <- function(data,
           }
           
           # map question levels to target levels
-          data.targets[[target.var]] <- data[[q.col.name]] %>%
+          data.mapped[[target.var]] <- data[[q.col.name]] %>%
             forcats::fct_relabel(function(x) {
               for (c in 1:nrow(q.col.map)) {
                 x[grepl(q.col.map$question_choice[c], x, ignore.case=T)] <- q.col.map$variable_level[c]
               }
               return(x)
             }) %>%
-            suppressWarnings(forcats::fct_other(keep = q.col.map$variable_level))
-          if ("Other" %in% data.targets[[target.var]]) {
-            data.targets[[target.var]] <- suppressWarnings(forcats::fct_recode(data.targets[[target.var]], `NULL`="Other"))
+            forcats::fct_other(keep = unique(q.col.map$variable_level))
+          if ("Other" %in% data.mapped[[target.var]] & !("Other" %in% unique(q.col.map$variable_level))) {
+            data.mapped[[target.var]] <- suppressWarnings(forcats::fct_recode(data.mapped[[target.var]], `NULL`="Other"))
           }
           break
         }
       }
-      if (is.null(data.targets[[target.var]]) & !auto.remove) {
-        stop(sprintf("Could not find a question to map to `%s`", target.var))
-      } else if (is.null(data.targets[[target.var]]) & auto.remove) {
-        message(sprintf("Could not find a question to map to `%s` ... removing", target.var))
+      if (is.null(data.mapped[[target.var]]) & !auto.remove) {
+        stop(sprintf("\tWarning: could not find a question to map to `%s`", target.var))
+      } else if (is.null(data.mapped[[target.var]]) & auto.remove) {
+         message(sprintf("\tWarning: could not find a question to map to `%s` ... removing", target.var))
+        target.vars.failed <- c(target.vars.failed, target.var)
       }
     }
     
-    if (all(target.vars %in% colnames(data.targets))) {
+    if (all(target.vars %in% colnames(data.mapped))) {
       collapse_vars <- function(x) ifelse(any(is.na(x)), NA, gsub("(\\:| )", "", paste(x, collapse="_")))
       
       # combine target variables in pop margins
@@ -83,12 +176,12 @@ weight_to_US_genpop <- function(data,
       target.t <- target.t[c(target.vars.cmbd, "target")]
       
       # combine target variables in sample
-      data.targets[target.vars.cmbd] <- apply(data.targets, 1, function(.) collapse_vars(.[target.vars]))
+      data.mapped[target.vars.cmbd] <- apply(data.mapped, 1, function(.) collapse_vars(.[target.vars]))
       
       # integerize both
       target.codebook <- rbind(target.codebook, 
                                data.frame(variable=target.vars.cmbd, value=unique(target.t[[target.vars.cmbd]]), level=1:length(unique(target.t[[target.vars.cmbd]]))))
-      data.targets[paste0(target.vars.cmbd,"_")] <- as.numeric(factor(data.targets[[target.vars.cmbd]], levels = unique(target.t[[target.vars.cmbd]])))
+      data.mapped[paste0(target.vars.cmbd,"_")] <- as.numeric(factor(data.mapped[[target.vars.cmbd]], levels = unique(target.t[[target.vars.cmbd]])))
       target.t[paste0(target.vars.cmbd,"_")] <- as.numeric(factor(target.t[[target.vars.cmbd]], levels = unique(target.t[[target.vars.cmbd]])))
       target.t[target.vars.cmbd] <- NULL
       
@@ -105,51 +198,51 @@ weight_to_US_genpop <- function(data,
   }
   
   if (all(!is.null(initial.weights))) {
-    data.targets$initwt <- initial.weights
+    data.mapped$initwt <- initial.weights
   } else {
-    data.targets$initwt <- 1
+    data.mapped$initwt <- 1
   }
-  data.targets <- data.targets[complete.cases(data.targets),]
-  message(sprintf("Dropping %d (%0.0f%%) incomplete observations", 
-                  nrow(data)-nrow(data.targets),
-                  100-(100*nrow(data.targets)/nrow(data))))
+  data.mapped <- data.mapped[complete.cases(data.mapped),]
+  message(sprintf("\nDropped %d (%0.0f%%) incomplete observations", 
+                  nrow(data)-nrow(data.mapped),
+                  100-(100*nrow(data.mapped)/nrow(data))))
   
-  data.wtd <- rake(design = svydesign(ids = ~1, data = data.targets, weights = data.targets$initwt),
+  data.wtd <- rake(design = svydesign(ids = ~1, data = data.mapped, weights = data.mapped$initwt),
                    sample.margins = margin.formulas,
                    population.margins = pop.margins,
                    control = list(maxit = 200, epsilon = 1, verbose = FALSE))
   
   # trim weights
-  data.targets <- data.targets %>%
+  data.mapped <- data.mapped %>%
     mutate(wt = weights(data.wtd)) %>%
     mutate(wt = wt * (n() / sum(wt)))
   
   message("\nRaw weight percentiles:")
-  print(quantile(data.targets$wt, probs=c(0.01,0.25,0.50,0.75,0.99)))
+  print(quantile(data.mapped$wt, probs=c(0.01,0.25,0.50,0.75,0.99)))
   
   if (all(!is.null(trim.weights)) | !(any(trim.weights == FALSE))) {
     
     trim.weights[trim.weights > 1] <- trim.weights[trim.weights > 1]/100
-    trim.weights.pctl <- quantile(data.targets$wt, probs = trim.weights)
+    trim.weights.pctl <- quantile(data.mapped$wt, probs = trim.weights)
     
     if (length(trim.weights.pctl) == 1) {
       message(sprintf("\nTrimming weights >= %0.3f", trim.weights.pctl))
-      data.targets <- data.targets %>%
+      data.mapped <- data.mapped %>%
         mutate(wt = case_when(wt >= trim.weights.pctl ~ trim.weights.pctl,
                               TRUE ~ wt)) 
     } else {
       message(sprintf("\nTrimming weights <= %0.3f and >= %0.3f", trim.weights.pctl[1], trim.weights.pctl[2]))    
-      data.targets <- data.targets %>%
+      data.mapped <- data.mapped %>%
         mutate(wt = case_when(wt <= trim.weights.pctl[1] ~ trim.weights.pctl[2],
                               wt >= trim.weights.pctl[2] ~ trim.weights.pctl[2],
                               TRUE ~ wt))     
     }
-    data.targets <- data.targets %>%
+    data.mapped <- data.mapped %>%
       mutate(wt = wt * (n() / sum(wt)))
   }
   
   # compare distributions
-  weight.summary <- data.targets %>%
+  weight.summary <- data.mapped %>%
     dplyr::select_at(c(target.vars.all, paste0(target.vars.all,"_"), "wt")) %>%
     tidyr::gather(key="variable", value="value", c(target.vars.all)) %>%
     dplyr::group_by(variable, value) %>%
@@ -167,15 +260,15 @@ weight_to_US_genpop <- function(data,
   
   avg.infl <- round(with(weight.summary, mean(weighted/unweighted)-1)*100, 2)
   avg.infl <- ifelse(avg.infl > 0, paste0("+",avg.infl,"%"), paste0(avg.infl,"%"))
-  cat(paste0("\nAverage strata inflation after weighting: ", avg.infl))
+  message(paste0("\nAverage strata inflation after weighting: ", avg.infl))
   
   avg.diff <- round(with(weight.summary, mean(weighted-target))*100, 2)
   avg.diff <- ifelse(avg.diff > 0, paste0("+",avg.diff,"%"), paste0(avg.diff,"%"))
-  cat(paste0("\nAverage strata weight - target weight: ", avg.diff))
+  message(paste0("\nAverage strata weight - target weight: ", avg.diff))
   cat("\n")
   
   weights <- data["i"] %>%
-    dplyr::left_join(data.targets %>%
+    dplyr::left_join(data.mapped %>%
                        select(i, weight=wt),
                      by = "i") %>%
     dplyr::pull(weight)
