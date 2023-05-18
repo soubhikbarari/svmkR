@@ -20,6 +20,7 @@ Imports:
     maditr,
     magrittr,
     tidyselect,
+    survey,
     rlang
 License: MIT + file LICENSE
 Url: https://github.com/soubhikbarari/svmkR
