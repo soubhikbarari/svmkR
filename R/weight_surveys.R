@@ -138,7 +138,8 @@ weight_to <- function(data,
           }
           
           q.col.map <- q.candidates[q.candidates$question_text == cand,]
-          message(sprintf("﹂\033[0;32m`%s`\033[0m → \033[0;36m`%s`\033[0m", q.col.name, target.var))
+          if (verbose)
+            message(sprintf("﹂\033[0;32m`%s`\033[0m → \033[0;36m`%s`\033[0m", q.col.name, target.var))
           
           if (grepl("ZIP code", q.col.name)) {
             data[[q.col.name]] <- ifelse(is.na(data[[q.col.name]]), NA, sprintf("%05d", as.numeric(data[[q.col.name]])))
@@ -160,9 +161,11 @@ weight_to <- function(data,
         }
       }
       if (is.null(data.mapped[[target.var]]) & !auto.remove) {
-        stop(sprintf("\tWarning: could not find a question to map to `%s`", target.var))
+        if (verbose)
+          stop(sprintf("\tWarning: could not find a question to map to `%s`", target.var))
       } else if (is.null(data.mapped[[target.var]]) & auto.remove) {
-         message(sprintf("\tWarning: could not find a question to map to `%s` ... removing", target.var))
+        if (verbose)
+          message(sprintf("\tWarning: could not find a question to map to `%s` ... removing", target.var))
         target.vars.failed <- c(target.vars.failed, target.var)
       }
     }
@@ -203,9 +206,8 @@ weight_to <- function(data,
     data.mapped$initwt <- 1
   }
   data.mapped <- data.mapped[complete.cases(data.mapped),]
-  message(sprintf("\nDropped %d (%0.0f%%) incomplete observations", 
-                  nrow(data)-nrow(data.mapped),
-                  100-(100*nrow(data.mapped)/nrow(data))))
+  if (verbose)
+    message(sprintf("\nDropped %d (%0.0f%%) incomplete observations", nrow(data)-nrow(data.mapped), 100-(100*nrow(data.mapped)/nrow(data))))
   
   data.wtd <- rake(design = svydesign(ids = ~1, data = data.mapped, weights = data.mapped$initwt),
                    sample.margins = margin.formulas,
@@ -217,8 +219,10 @@ weight_to <- function(data,
     mutate(wt = weights(data.wtd)) %>%
     mutate(wt = wt * (n() / sum(wt)))
   
-  message("\nRaw weight percentiles:")
-  print(quantile(data.mapped$wt, probs=c(0.01,0.25,0.50,0.75,0.99)))
+  if (verbose) {
+    message("\nRaw weight percentiles:")
+    print(quantile(data.mapped$wt, probs=c(0.01,0.25,0.50,0.75,0.99)))
+  }
   
   if (all(!is.null(trim.weights)) | !(any(trim.weights == FALSE))) {
     
@@ -226,12 +230,14 @@ weight_to <- function(data,
     trim.weights.pctl <- quantile(data.mapped$wt, probs = trim.weights)
     
     if (length(trim.weights.pctl) == 1) {
-      message(sprintf("\nTrimming weights >= %0.3f", trim.weights.pctl))
+      if (verbose)
+        message(sprintf("\nTrimming weights >= %0.3f", trim.weights.pctl))
       data.mapped <- data.mapped %>%
         mutate(wt = case_when(wt >= trim.weights.pctl ~ trim.weights.pctl,
                               TRUE ~ wt)) 
     } else {
-      message(sprintf("\nTrimming weights <= %0.3f and >= %0.3f", trim.weights.pctl[1], trim.weights.pctl[2]))    
+      if (verbose)
+        message(sprintf("\nTrimming weights <= %0.3f and >= %0.3f", trim.weights.pctl[1], trim.weights.pctl[2]))    
       data.mapped <- data.mapped %>%
         mutate(wt = case_when(wt <= trim.weights.pctl[1] ~ trim.weights.pctl[2],
                               wt >= trim.weights.pctl[2] ~ trim.weights.pctl[2],
@@ -260,11 +266,13 @@ weight_to <- function(data,
   
   avg.infl <- round(with(weight.summary, mean(weighted/unweighted)-1)*100, 2)
   avg.infl <- ifelse(avg.infl > 0, paste0("+",avg.infl,"%"), paste0(avg.infl,"%"))
-  message(paste0("\nAverage strata inflation after weighting: ", avg.infl))
+  if (verbose)
+    message(paste0("\nAverage strata inflation after weighting: ", avg.infl))
   
   avg.diff <- round(with(weight.summary, mean(weighted-target))*100, 2)
   avg.diff <- ifelse(avg.diff > 0, paste0("+",avg.diff,"%"), paste0(avg.diff,"%"))
-  message(paste0("\nAverage strata weight - target weight: ", avg.diff))
+  if (verbose)
+    message(paste0("\nAverage strata weight - target weight: ", avg.diff))
   cat("\n")
   
   weights <- data["i"] %>%
