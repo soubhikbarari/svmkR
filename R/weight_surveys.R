@@ -25,6 +25,32 @@ get_target <- function(name) {
   return(target)
 }
 
+#' Look up weighting target variable
+#' 
+#' Find all information (e.g. applicable survey questions, applicable levels) for a potential weighting target variable.
+#' 
+#' @param target.var name of a potential target variable used in a target population profile (see \code{list_targets()}).
+#' @export
+look_up_weighting_variable <- function(target.var) {
+  qmap <- suppressMessages(readr::read_csv(system.file("extdata", "qmap.txt", package = "svmkR")))
+  qmap[tolower(qmap$variable_name) == tolower(target.var),]
+}
+
+#' Look up weighting survey question
+#' 
+#' Find all information (e.g. applicable survey questions, applicable levels) for a potential weight-able survey question.
+#' 
+#' @param survey.question name of a survey question to map to a variable in some target distribution (see \code{list_targets()}).
+#' @export
+look_up_weighting_question <- function(survey.question) {
+  qmap <- suppressMessages(readr::read_csv(system.file("extdata", "qmap.txt", package = "svmkR")))
+  qtext.candidates <- unique(qmap$question_text)
+  qtext.candidates.idx <- pbapply::pbsapply(qtext.candidates, function(.) grepl(., survey.question))
+  if (all(qtext.candidates.idx==FALSE)) return(tibble())
+  qtext.candidates <- qtext.candidates[qtext.candidates.idx]
+  qmap[qmap$question_text == qtext.candidates,]
+}
+
 #' @method print target
 #' @export
 print.target <- function(target) {
@@ -80,7 +106,7 @@ weight_to <- function(data,
   # read in target population margins
   if (all(typeof(target) == "character")) {
     target <- get_target(target)
-  } else if (!("target" %in% class(d) | "list" %in% class(d))) {
+  } else if (!("target" %in% class(target) | "list" %in% class(target))) {
     stop("Doesn't look like you passed in a valid target. Must be named target distribution or a list of dataframes.")
   }
   check_target(target)
@@ -157,15 +183,20 @@ weight_to <- function(data,
           if ("Other" %in% data.mapped[[target.var]] & !("Other" %in% unique(q.col.map$variable_level))) {
             data.mapped[[target.var]] <- suppressWarnings(forcats::fct_recode(data.mapped[[target.var]], `NULL`="Other"))
           }
+          if (all(is.na(data.mapped[[target.var]]))) {
+            stop(sprintf("could not map any levels of question `%s` onto variable `%s`", q.col.name, target.var))
+          }
+          
+          print(table(`Unweighted counts:`=data.mapped[[target.var]], useNA = "always"))
           break
         }
       }
       if (is.null(data.mapped[[target.var]]) & !auto.remove) {
         if (verbose)
-          stop(sprintf("\tWarning: could not find a question to map to `%s`", target.var))
+          stop(sprintf("could not find a question to map to `%s`", target.var))
       } else if (is.null(data.mapped[[target.var]]) & auto.remove) {
         if (verbose)
-          message(sprintf("\tWarning: could not find a question to map to `%s` ... removing", target.var))
+          warning(sprintf("could not find a question to map to `%s` ... removing", target.var))
         target.vars.failed <- c(target.vars.failed, target.var)
       }
     }
