@@ -257,7 +257,7 @@ weight_to <- function(data,
     dplyr::mutate(unweighted = unweighted/sum(unweighted), weighted = weighted/sum(weighted)) %>%
     dplyr::ungroup() %>%
     dplyr::left_join(target.codebook, by = c("variable", "value")) %>%
-    dplyr::left_join(rbindlist(lapply(pop.margins, function(x) { 
+    dplyr::left_join(dplyr::bind_rows(lapply(pop.margins, function(x) { 
       x %>% 
         tidyr::gather(key="variable", value="level", -target) %>%
         dplyr::mutate(variable = trimws(variable, whitespace="\\_"))
@@ -273,7 +273,8 @@ weight_to <- function(data,
   avg.diff <- ifelse(avg.diff > 0, paste0("+",avg.diff,"%"), paste0(avg.diff,"%"))
   if (verbose)
     message(paste0("\nAverage strata weight - target weight: ", avg.diff))
-  cat("\n")
+  if (verbose)
+    cat("\n")
   
   weights <- data["i"] %>%
     dplyr::left_join(data.mapped %>%
@@ -286,6 +287,8 @@ weight_to <- function(data,
 }
 
 
+#' @importFrom survey svydesign
+#' @importFrom survey compressWeights
 rake <- function(design, 
                  sample.margins, 
                  population.margins, 
