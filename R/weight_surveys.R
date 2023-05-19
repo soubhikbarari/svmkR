@@ -187,7 +187,8 @@ weight_to <- function(data,
             stop(sprintf("could not map any levels of question `%s` onto variable `%s`", q.col.name, target.var))
           }
           
-          print(table(`Unweighted counts:`=data.mapped[[target.var]], useNA = "always"))
+          if (verbose)
+            print(table(`Unweighted counts:`=data.mapped[[target.var]], useNA = "always"))
           break
         }
       }
