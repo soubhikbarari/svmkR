@@ -6,10 +6,11 @@ This package provides a suite of tools to work with SurveyMonkey surveys.
 
 You can:
 
-* Create and upload a survey from a questionnaire document.
-* Browse and download surveys in your account.
-* Conduct basic analysis (e.g. margin of error) on your surveys
-* Create presentable SurveyMonkey-style banners for polls.
+* Create and upload a survey from a **questionnaire** document.
+* Browse and **download** surveys in your account.
+* Conduct basic **analysis** (e.g. margin of error) on your surveys.
+* Create statistical **weights** adjust your survey to a target population.
+* Create presentable SurveyMonkey-style **banners** for polls.
 
 **Note: This is the development branch, where new features for the coming release are being implemented and tested.**
 
