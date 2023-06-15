@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis.R
 \name{n_eff}
 \alias{n_eff}
-\title{Estimate the Kish effective sample size of using a set of weights.}
+\title{Estimate the Kish effective sample size of using a set of weights}
 \usage{
 n_eff(weights, na.rm = F)
 }

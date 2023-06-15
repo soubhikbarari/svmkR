@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis.R
 \name{esti_moe}
 \alias{esti_moe}
-\title{Estimate the Margin of Error (or "modelled error") for an overall survey or a single question.}
+\title{Estimate the margin of error for an overall survey or a single question}
 \usage{
 esti_moe(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.95)
 }
@@ -22,12 +22,12 @@ The survey margin of error (MOE) or "modeled error" for the overall survey or qu
 }
 \description{
 For the overall survey: given weights and/or a sample size, the 
-Maximum Margin of Error gives us the upper bound on the margin of error for all y/n questions across 
+maximum margin of error gives us the upper bound on the margin of error for all y/n questions across 
 the entire survey -- by estimating it for a hypothetical y/n question with 50/50% split in the population 
 (the inherently most uncertain population estimand).
 }
 \details{
-For a single question: given a vector of sample responses and/or weights, the Margin of Error
+For a single question: given a vector of sample responses and/or weights, the margin of error
 estimates the margin of error by plugging into known quantiles of the asymptotic sampling distribution.
 
 Estimates from this asymptotic formula tend to be smaller than
@@ -39,21 +39,21 @@ For non-probability surveys without design weights, it is recommended to use `si
 }
 \examples{
 
-data(auto.evs)
+data(ev22)
 if (FALSE) { ## not run
 
 # Unweighted maximum margin of error
-esti_moe(n = nrow(auto.evs))
-esti_moe(weights = rep(1, nrow(auto.evs)))
+esti_moe(n = nrow(ev22))
+esti_moe(weights = rep(1, nrow(ev22)))
 
 # Weighted maximum margin of error
-esti_moe(weights = auto.evs$weight_genpop)
+esti_moe(weights = ev22$weight_genpop)
 
 # Unweighted margin of error for specific question
-esti_moe(x = auto.evs$ev_heard_1)
+esti_moe(x = ev22$ev_heard_1)
 
 # Weighted margin of error for specific question
-auto.evs \%>\%
+ev22 \%>\%
   filter(!is.na(weight_genpop)) \%>\%
   esti_moe(x = ev_heard_1, weights = weight_genpop)
 }

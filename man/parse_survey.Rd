@@ -2,7 +2,7 @@
 % Please edit documentation in R/assemble.R
 \name{parse_survey}
 \alias{parse_survey}
-\title{Take a survey object and parses it into a tidy data.frame (optimized).}
+\title{Take a survey object and parse it into a tidy dataframe.}
 \usage{
 parse_survey(
   surv_obj,
@@ -35,5 +35,5 @@ parse_survey(
 A data.frame (technically a \code{tibble}) with clean responses, one line per respondent.
 }
 \description{
-Take a survey object and parses it into a tidy data.frame (optimized).
+Take a survey object and parse it into a tidy dataframe.
 }

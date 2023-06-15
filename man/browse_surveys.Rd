@@ -2,7 +2,7 @@
 % Please edit documentation in R/browse_surveys.R
 \name{browse_surveys}
 \alias{browse_surveys}
-\title{browse_surveys}
+\title{Browse user's surveys}
 \usage{
 browse_surveys(
   per_page = 100,

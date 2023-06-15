@@ -2,7 +2,7 @@
 % Please edit documentation in R/banners.R
 \name{write_banners}
 \alias{write_banners}
-\title{Format and save banner object to file.}
+\title{Format and save banner object to file}
 \usage{
 write_banners(
   banners.output,
@@ -51,10 +51,10 @@ a fully formatted spreadsheet in the form of an \code{openxlsx} object.
 Take the output from a call to \code{make_banners}, populate a spreadsheet with the banner data, format/stylize it in the SurveyMonkey research format, and save it locally. Currently allows for up to one level of nesting in columns.
 }
 \examples{
-data(auto.evs)
+data(ev22)
 if (FALSE) { ## not run
 # Prepare data for banners
-auto.evs.coded = auto.evs \%>\%
+ev22.coded = ev22 \%>\%
   let(
     ## code/label categorical variables
     age3 = recode(age,
@@ -135,19 +135,19 @@ auto.evs.coded = auto.evs \%>\%
                mech_factors_1 = "Select the top 3 factors that are most important to you when selecting an auto repair provider:",
                sub_services_1 = "Which of the following services would you be willing to pay a recurring subscription for in a car?") 
 # Make and save banners  
-auto.evs.banners <- auto.evs.coded \%>\%
+ev22.banners <- ev22.coded \%>\%
   make_banners(row.vars            = list("purchase","vehage","ev_heard*",c("mech_factors_1","mech_factors_2","mech_factors_3","mech_factors_4")), 
                col.vars            = list("age3","educ2",c("sub_services_1","sub_services_2","sub_services_3","sub_services_4")), 
                weight.var          = "weight_genpop", 
                date.var            = "response_date", 
                total.row.position  = "below", 
                preview             = TRUE) \%>\%
-  write_banners(file.path          = "auto_evs.xlsx",
+  write_banners(file.path          = "ev22.xlsx",
                 file.overwrite     = TRUE,
-                title              = "Automative/Electric Vehicles Study",
+                title              = "Electric Vehicles Study",
                 logo               = "mntv") \%>\%
   upload_banners(drive.overwrite   = TRUE,
-                 drive.file.name   = "Auto EVs Crosstabs",
+                 drive.file.name   = "EVs Crosstabs",
                  drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")
 }
 }

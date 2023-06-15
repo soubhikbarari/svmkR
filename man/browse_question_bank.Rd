@@ -2,7 +2,7 @@
 % Please edit documentation in R/browse_surveys.R
 \name{browse_question_bank}
 \alias{browse_question_bank}
-\title{browse_question_bank}
+\title{Browse user's question bank}
 \usage{
 browse_question_bank(oauth_token = get_token())
 }

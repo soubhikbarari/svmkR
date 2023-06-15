@@ -32,3 +32,14 @@ Generate statistical weights for your survey responses to better represent some 
 \details{
 The default SurveyMonkey to weight surveys is via raking. For an overview of raking, see \href{https://www.abtassociates.com/raking-survey-data-aka-sample-balancing}{this guide}.
 }
+\examples{
+
+if (FALSE) { ## not run
+data("smda23")
+tgt <- get_target("us_genpop_acs19")
+wtd <- weight_to(smda23, target = tgt)
+
+hist(wtd$weights)
+print(wtd$weight.summary)
+}
+}

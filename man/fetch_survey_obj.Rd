@@ -2,7 +2,7 @@
 % Please edit documentation in R/fetch_survey.R
 \name{fetch_survey_obj}
 \alias{fetch_survey_obj}
-\title{Title}
+\title{Download a survey's responses}
 \usage{
 fetch_survey_obj(id, oauth_token = get_token())
 }
@@ -16,7 +16,7 @@ By default, retrieved from \code{get_token()}.}
 a survey object, which is a nested list containing info about the survey.
 }
 \description{
-Title
+Download a survey's responses
 }
 \examples{
 # not run:

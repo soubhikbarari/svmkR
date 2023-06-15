@@ -24,11 +24,12 @@ generates an object that is ready to be uploaded as a survey.
 See \code{vignette("qdocs")} for a guide to the QDOC format.
 }
 \examples{
+if (FALSE) { ## not run
 data(qdocs)
 
 set_token("XXXXXXX")
 
 read_qdoc(text = qdoc.simple) # simple format
 read_qdoc(text = qdoc.adv)    # advanced format
-
+}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/browse_surveys.R
 \name{browse_templates}
 \alias{browse_templates}
-\title{browse_templates}
+\title{Browse user's survey templates}
 \usage{
 browse_templates(oauth_token = get_token())
 }

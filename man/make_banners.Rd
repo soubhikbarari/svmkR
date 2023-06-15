@@ -2,7 +2,7 @@
 % Please edit documentation in R/banners.R
 \name{make_banners}
 \alias{make_banners}
-\title{Create banners from survey data.}
+\title{Create banners from survey data}
 \usage{
 make_banners(
   data,
@@ -42,10 +42,10 @@ Create an \code{expss} table object and a cleaned data frame from an input data 
 Before running, must make sure that the input \code{data} is properly labelled/coded according to \code{expss} conventions (see example below). When doing so, make sure that values across multi-response variables (i.e. 'select all that apply' type questions) are given distinct levels, that is converted from binary to categorical (see example).
 }
 \examples{
-data(auto.evs)
+data(ev22)
 if (FALSE) { ## not run
 # Prepare data for banners
-auto.evs.coded = auto.evs \%>\%
+ev22.coded = ev22 \%>\%
   let(
     ## code/label categorical variables
     age3 = recode(age,
@@ -126,16 +126,16 @@ auto.evs.coded = auto.evs \%>\%
                mech_factors_1 = "Select the top 3 factors that are most important to you when selecting an auto repair provider:",
                sub_services_1 = "Which of the following services would you be willing to pay a recurring subscription for in a car?") 
 # Make and save banners  
-auto.evs.banners <- auto.evs.coded \%>\%
+ev22.banners <- ev22.coded \%>\%
   make_banners(row.vars           = list("purchase","vehage","ev_heard*",c("mech_factors_1","mech_factors_2","mech_factors_3","mech_factors_4")), 
                col.vars           = list("age3","educ2",c("sub_services_1","sub_services_2","sub_services_3","sub_services_4")), 
                weight.var         = "weight_genpop", 
                date.var           = "response_date", 
                total.row.position = "below", 
                preview            = TRUE) \%>\%
-  write_banners(file.path         = "auto_evs.xlsx",
+  write_banners(file.path         = "ev22.xlsx",
                 file.overwrite    = TRUE,
-                title             = "Automative/Electric Vehicles Study",
+                title             = "Electric Vehicles Study",
                 logo              = "mntv",
                 drive.overwrite   = TRUE,
                 drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")

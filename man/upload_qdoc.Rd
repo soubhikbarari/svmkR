@@ -49,6 +49,7 @@ Takes a processed \code{qdoc} object and uploads to SurveyMonkey
 account associated with token with selected title, location, and format.
 }
 \examples{
+if (FALSE) { ## not run
 data(qdocs)
 
 set_token("XXXXXXX")
@@ -56,7 +57,7 @@ set_token("XXXXXXX")
 my_qdoc <- read_qdoc(text = qdoc.simple) 
 
 upload_qdoc(my_qdoc, title = "My Survey")
-
+}
 }
 \references{
 SurveyMonkey \code{POST /survey} API V3 at \url{https://developer.surveymonkey.com/api/v3/#api-endpoints-post-surveys}.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/browse_surveys.R
 \name{browse_team_templates}
 \alias{browse_team_templates}
-\title{browse_team_templates}
+\title{Browse user's team's templates}
 \usage{
 browse_team_templates(oauth_token = get_token())
 }

@@ -6,6 +6,9 @@
 \usage{
 get_target(name)
 }
+\arguments{
+\item{id}{name of target population to read in (see \code{list_targets} for options).}
+}
 \description{
-Read in a default target population  (i.e. specific variables and their marginal and joint distributions) available through this package for you to weight your survey to.
+Read in a default target population (i.e. specific variables and their marginal and joint distributions) available through this package for you to weight your survey to.
 }

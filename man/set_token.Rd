@@ -2,7 +2,7 @@
 % Please edit documentation in R/token_utils.r
 \name{set_token}
 \alias{set_token}
-\title{Set Survey Monkey Oauth Token}
+\title{Set SurveyMonkey OAuth Token}
 \usage{
 set_token(oauth_token)
 }
