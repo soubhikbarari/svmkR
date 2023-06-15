@@ -12,11 +12,18 @@ vignette: >
 
 # Installation
 
-To install the development version from GitHub:
+To install the stable version of `svmkR` from GitHub:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("soubhikbarari/svmkR", branch = "dev")
+devtools::install_github("soubhikbarari/svmkR")
+```
+
+To install the development version of `svmkR` from GitHub:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("soubhikbarari/svmkR@dev")
 ```
 
 # Authentication
@@ -26,20 +33,13 @@ Before going any further you’ll need an OAuth token, and for that you’ll nee
 1. **Navigate to SurveyMonkey Developer portal.** Log in to SurveyMonkey in your browser, then navigate to
 <https://developer.surveymonkey.com/apps>. 
 
-2. **Create an app.** It should be private, and you should enable the relevant scopes: View Surveys, View
-Collectors, View Contacts, View Responses, View Response Details. (That
-should do it, but if you get a 403 error when you try to browse surveys,
-try enabling other relevant scopes). You don’t need to click “deploy”,
-as long as the setting selected have been updated you’re set.
+2. **Create an app.** It should be private, and you should enable the relevant scopes: Create/Modify Surveys, View Surveys, View Collectors, View Contacts, View Responses, View Response Details. You don’t need to click “deploy”, as long as the setting selected have been updated you’re set.
 
 3. **Copy access token.** Look at the settings page for your app and take note of the “Access Token” field, which should contain a very long character string.
 
-4. **Add to R environment.** Add the SurveyMonkey account’s OAuth token to your .Rprofile file. To
-open and edit that file, run `usethis::edit_r_profile()`, then add a
-line like this: `options(sm_oauth_token = "MY-OAUTH-TOKEN-FROM-STEP-3")`.
+4. **Add to R environment.** Add the SurveyMonkey account’s OAuth token to your .Rprofile file. To open and edit that file, run `usethis::edit_r_profile()`, then add a line like this: `options(sm_oauth_token = "MY-OAUTH-TOKEN-FROM-STEP-3")`.
 
-6. **Test that it works.** Restart R for changes to take effect. If this is all set up successfully, the token will print when you run
-`getOption("sm_oauth_token")`. Guard this token: don’t share it and
+6. **Test that it works.** Restart R for changes to take effect. If this is all set up successfully, the token will print when you run `getOption("sm_oauth_token")`. Guard this token: don’t share it and
 don’t commit it in any repository.
 
 # Workflow
