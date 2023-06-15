@@ -1,4 +1,4 @@
-#' Take a survey object and parses it into a tidy data.frame (optimized).
+#' Take a survey object and parse it into a tidy dataframe.
 #'
 #' @param surv_obj A survey, the result of a call to \code{fetch_survey_obj}.
 #' @param oauth_token Your OAuth 2.0 token. By default, retrieved from
@@ -88,9 +88,9 @@ parse_survey <- function(surv_obj,
         record <- append(record, col)
       }
     }
-    record$collector_id <- response$collector_id
+    record$collector_id <- as.numeric(response$collector_id)
     record$collection_mode <- response$collection_mode
-    record$response_id <- response$id
+    record$response_id <- as.numeric(response$id)
     record$response_status <- response$response_status
     record$date_created <- response$date_created
     record$date_modified <- response$date_modified  
@@ -105,7 +105,7 @@ parse_survey <- function(surv_obj,
   message("Merging responses 🤝")
   
   records <- dplyr::bind_rows(recordsList)
-  records$survey_id <- surv_obj$id
+  records$survey_id <- as.numeric(surv_obj$id)
   
   for (q in rev(names(surv_obj$questions))) {
     if (col_names == "id") {

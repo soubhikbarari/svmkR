@@ -1,4 +1,4 @@
-#' browse_surveys
+#' Browse user's surveys
 #'
 #' Retrieve a dataframe of the user's surveys.
 #'
@@ -99,7 +99,7 @@ browse_surveys <- function(per_page = 100,
   }
 }
 
-#' browse_templates
+#' Browse user's survey templates
 #'
 #' Retrieve a dataframe of survey templates available to the user.
 #'
@@ -124,7 +124,7 @@ browse_templates <- function(oauth_token = get_token()) {
   return(sl.user)
 }
 
-#' browse_team_templates
+#' Browse user's team's templates
 #'
 #' Retrieve a dataframe of survey templates available to the user's team.
 #'
@@ -150,7 +150,7 @@ browse_team_templates <- function(oauth_token = get_token()) {
 }
 
 
-#' browse_question_bank
+#' Browse user's question bank
 #'
 #' Retrieve the survey question bank available to the user.
 #'
@@ -170,9 +170,9 @@ browse_question_bank <- function(oauth_token = get_token()) {
   u <- "https://api.surveymonkey.com/v3/question_bank/questions"
   h <- standard_request_header(oauth_token)
   parsed_content <- sm_get(url = u, query = NULL, config = h)
-  
+  #browser()
   sl <- dplyr::bind_rows(lapply(parsed_content$data, function(.) {
-    list(question_id=.$question_id, text=.$text)
+    list(question_id=.$question_id[[1]], text=.$text[[1]])
   }))
   return(sl)
 }

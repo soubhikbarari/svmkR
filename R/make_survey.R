@@ -137,13 +137,14 @@ qdoc.q <- qdoc.question
 #' @export
 #'
 #' @examples
+#' if (FALSE) { ## not run
 #' data(qdocs)
 #'
 #' set_token("XXXXXXX")
 #' 
 #' read_qdoc(text = qdoc.simple) # simple format
 #' read_qdoc(text = qdoc.adv)    # advanced format
-#'
+#' }
 read_qdoc <- function(file = NULL,
                       gdoc = NULL,
                       text = NULL, 
@@ -236,6 +237,7 @@ read_qdoc <- function(file = NULL,
 #' @export
 #'
 #' @examples
+#' if (FALSE) { ## not run
 #' data(qdocs)
 #'
 #' set_token("XXXXXXX")
@@ -243,7 +245,7 @@ read_qdoc <- function(file = NULL,
 #' my_qdoc <- read_qdoc(text = qdoc.simple) 
 #' 
 #' upload_qdoc(my_qdoc, title = "My Survey")
-#'
+#' }
 upload_qdoc <- function(qdoc,
                         title,
                         from_template_id = NULL,

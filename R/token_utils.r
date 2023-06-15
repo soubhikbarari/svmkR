@@ -1,4 +1,4 @@
-#' Set Survey Monkey Oauth Token
+#' Set SurveyMonkey OAuth Token
 #'
 #' Sets the option 'sm_oauth_token' for the survey monkey API.
 #' Token will be used for authorization headers for requests.
@@ -9,7 +9,7 @@ set_token = function(oauth_token) {
   options("sm_oauth_token" = oauth_token)
 }
 
-#' Retrieve set Survey Monkey OAuth Token
+#' Retrieve SurveyMonkey OAuth Token
 #'
 #' Retrieves the currently set survey monkey oauth token
 #' @export

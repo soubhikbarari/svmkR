@@ -11,8 +11,9 @@ list_targets <- function() {
 
 #' Get a SurveyMonkey target population
 #' 
-#' Read in a default target population  (i.e. specific variables and their marginal and joint distributions) available through this package for you to weight your survey to.
+#' Read in a default target population (i.e. specific variables and their marginal and joint distributions) available through this package for you to weight your survey to.
 #'
+#' @param id name of target population to read in (see \code{list_targets} for options).
 #' @export
 get_target <- function(name) {
   target.dirpath <- system.file("extdata", "targets", name, package = "svmkR")
@@ -94,6 +95,16 @@ find_stems <- function(q) {
 #' @param trim.weights percentiles to trim your weights (default are 0.01 and .99, or 1\% and 99\%); can specify either an upper percentile or both a lower and upper percentile.
 #' @param verbose output helpful progress and warning messages (recommended).
 #' @export
+#' @examples
+#' 
+#' if (FALSE) { ## not run
+#' data("smda23")
+#' tgt <- get_target("us_genpop_acs19")
+#' wtd <- weight_to(smda23, target = tgt)
+#' 
+#' hist(wtd$weights)
+#' print(wtd$weight.summary)
+#' }
 weight_to <- function(data,
                       target = "us_genpop_acs18",
                       auto.remove = TRUE,
@@ -248,8 +259,8 @@ weight_to <- function(data,
   
   # trim weights
   data.mapped <- data.mapped %>%
-    mutate(wt = weights(data.wtd)) %>%
-    mutate(wt = wt * (n() / sum(wt)))
+    dplyr::mutate(wt = weights(data.wtd)) %>%
+    dplyr::mutate(wt = wt * (dplyr::n() / sum(wt)))
   
   if (verbose) {
     message("\nRaw weight percentiles:")
@@ -265,18 +276,18 @@ weight_to <- function(data,
       if (verbose)
         message(sprintf("\nTrimming weights >= %0.3f", trim.weights.pctl))
       data.mapped <- data.mapped %>%
-        mutate(wt = case_when(wt >= trim.weights.pctl ~ trim.weights.pctl,
-                              TRUE ~ wt)) 
+        dplyr::mutate(wt = dplyr::case_when(wt >= trim.weights.pctl ~ trim.weights.pctl,
+                                            TRUE ~ wt)) 
     } else {
       if (verbose)
         message(sprintf("\nTrimming weights <= %0.3f and >= %0.3f", trim.weights.pctl[1], trim.weights.pctl[2]))    
       data.mapped <- data.mapped %>%
-        mutate(wt = case_when(wt <= trim.weights.pctl[1] ~ trim.weights.pctl[2],
-                              wt >= trim.weights.pctl[2] ~ trim.weights.pctl[2],
-                              TRUE ~ wt))     
+        dplyr::mutate(wt = dplyr::case_when(wt <= trim.weights.pctl[1] ~ trim.weights.pctl[2],
+                                            wt >= trim.weights.pctl[2] ~ trim.weights.pctl[2],
+                                            TRUE ~ wt))     
     }
     data.mapped <- data.mapped %>%
-      mutate(wt = wt * (n() / sum(wt)))
+      dplyr::mutate(wt = wt * (dplyr::n() / sum(wt)))
   }
   
   # compare distributions
@@ -284,7 +295,7 @@ weight_to <- function(data,
     dplyr::select_at(c(target.vars.all, paste0(target.vars.all,"_"), "wt")) %>%
     tidyr::gather(key="variable", value="value", c(target.vars.all)) %>%
     dplyr::group_by(variable, value) %>%
-    dplyr::summarise(unweighted = n(), weighted = sum(wt), .groups = "drop") %>%
+    dplyr::summarise(unweighted = dplyr::n(), weighted = sum(wt), .groups = "drop") %>%
     dplyr::group_by(variable) %>%
     dplyr::mutate(unweighted = unweighted/sum(unweighted), weighted = weighted/sum(weighted)) %>%
     dplyr::ungroup() %>%
@@ -310,7 +321,7 @@ weight_to <- function(data,
   
   weights <- data["i"] %>%
     dplyr::left_join(data.mapped %>%
-                       select(i, weight=wt),
+                       dplyr::select(i, weight=wt),
                      by = "i") %>%
     dplyr::pull(weight)
   

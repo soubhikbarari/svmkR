@@ -1,6 +1,4 @@
-# Returns the details of a survey, to cut down on API calls
-
-#' Title
+#' Download a survey's responses
 #'
 #' @param id ID number of survey to be fetched.
 #' @param oauth_token Your OAuth 2.0 token.
