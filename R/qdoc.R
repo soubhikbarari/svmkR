@@ -178,7 +178,7 @@ get_choices <- function(q.text, quiet.fail = FALSE) {
   } else {
     choices <- c()
     if (!quiet.fail) {
-      stop(sprintf("no choices found in question text"))
+      stop(sprintf("no choices found in question text:\n`%s`", q.text))
     }
   }
   choices <- trimws(gsub("^(\t)*(\\-|\\d\\.|\\d\\))","", choices))
