@@ -137,14 +137,14 @@ make_banners <- function(data,
     if (length(rr) > 1) {
       if (all(r.uniq %in% c(0,1))) {
         r.type <- "mdset"
-        lazy_tab_cells <- function(.) expss::tab_cells(., mdset_p(paste0("(",paste0(rr,collapse="|"),")")))
+        lazy_tab_cells <- function(.) expss::tab_cells(., expss::mdset_p(paste0("(",paste0(rr,collapse="|"),")")))
       } else {
         r.type <- "mrset"
-        lazy_tab_cells <- function(.) expss::tab_cells(., mrset_p(paste0("(",paste0(rr,collapse="|"),")")))
+        lazy_tab_cells <- function(.) expss::tab_cells(., expss::mrset_p(paste0("(",paste0(rr,collapse="|"),")")))
       }
     } else {
       r.type <- "vars_list"
-      lazy_tab_cells <- function(.) expss::tab_cells(., vars_list(rr))
+      lazy_tab_cells <- function(.) expss::tab_cells(., expss::vars_list(rr))
     }
     banner.table.r <- NULL
     for (c in 1:length(col.vars)) {
@@ -157,14 +157,14 @@ make_banners <- function(data,
       if (length(cc) > 1) {
         if (all(c.uniq %in% c(0,1))) {
           c.type <- "mdset"
-          lazy_tab_cols <- function(.) expss::tab_cols(., total(), mdset_p(paste0("(",paste0(cc,collapse="|"),")")))
+          lazy_tab_cols <- function(.) expss::tab_cols(., expss::total(), expss::mdset_p(paste0("(",paste0(cc,collapse="|"),")")))
         } else {
           c.type <- "mrset"
-          lazy_tab_cols <- function(.) expss::tab_cols(., total(), mrset_p(paste0("(",paste0(cc,collapse="|"),")")))
+          lazy_tab_cols <- function(.) expss::tab_cols(., expss::total(), expss::mrset_p(paste0("(",paste0(cc,collapse="|"),")")))
         }
       } else {
         c.type <- "vars_list"
-        lazy_tab_cols <- function(.) expss::tab_cols(., total(), vars_list(cc))
+        lazy_tab_cols <- function(.) expss::tab_cols(., expss::total(), expss::vars_list(cc))
       }
       
       if (is.null(weight.var)) {
@@ -409,7 +409,7 @@ make_banners <- function(data,
 #'                 logo               = "mntv") %>%
 #'   upload_banners(drive.overwrite   = TRUE,
 #'                  drive.file.name   = "EVs Crosstabs",
-#'                  drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")
+#'                  drive.folder.path = "https://drive.google.com/drive/u/1/folders/XXXX")
 #' }
 write_banners <- function(banners.output, 
                           title = "Main",
@@ -422,7 +422,7 @@ write_banners <- function(banners.output,
                           logo = "mntv",
                           include.moe = TRUE,
                           include.dates = TRUE,
-                          date.var = "StartDate",
+                          date.var = "response_date",
                           weight.var = NULL,
                           ...) {
   
@@ -797,7 +797,7 @@ write_banners <- function(banners.output,
 #'                 logo               = "mntv") %>%
 #'   upload_banners(drive.overwrite   = TRUE,
 #'                  drive.file.name   = "EV Study Crosstabs",
-#'                  drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")
+#'                  drive.folder.path = "https://drive.google.com/drive/u/1/folders/XXXX")
 #' }
 upload_banners <- function(banners.output = NULL,
                            file.path = NULL,
