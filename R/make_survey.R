@@ -84,7 +84,14 @@ qdoc.question <- function(text,
     q$headings <- list(get_heading(text))
     q$answers <- list()
     q$answers$choices <- get_choices(text)
-    
+    # #### snippet for parsing other ####
+    # if (is_other(q$answers$choices)) {
+    #   q$answers$other <- get_other(text)
+    #   ### get_other should return:
+    #   ### list(text = <text associated with the other choice, with "[[OTHER]]" removed>,
+    #   ###      "num_chars": 100, "num_lines": 3)
+    # }
+    # ###################################
   } else if (is_single_choice(text)) {
     
     class(q) <- c("qdoc.single_choice", "list")
