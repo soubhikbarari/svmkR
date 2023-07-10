@@ -60,7 +60,6 @@ parse_survey <- function(surv_obj,
       for (q in 1:length(page$questions)) {
         question <- page$questions[[q]]
         question_id <- question$id
-        # if (startsWith(question_id, "86524344")) stop("")
         family <- surv_obj$families[[question_id]]
         if (family == "matrix") {
           out <- process_matrix(surv_obj, question)
@@ -80,7 +79,8 @@ parse_survey <- function(surv_obj,
         if (col_names == "id") {
           col <- out$id
           labels_new <- as.list(names(out$name))
-          names(labels_new) <- names(out$id)
+          # names(labels_new) <- names(out$id) ## labels will always be question text
+          names(labels_new) <- names(out$name)
         } else {
           col <- out$name
           labels_new <- as.list(names(out$id))
@@ -177,9 +177,11 @@ parse_survey <- function(surv_obj,
   labels$email_address <- "Respondent's email address"
   labels$ip_address <- "Respondent's IP address"
   
-  labels <- labels[names(labels) %in% colnames(records)]
-  records <- records %>%
-    labelled::set_variable_labels(.labels = labels)
+  if (col_names == "id") {
+    labels <- labels[names(labels) %in% colnames(records)]
+    records <- records %>%
+      labelled::set_variable_labels(.labels = labels)
+  }
   
   if (sample(c(1,2,3,4,5),1)==1) {
     message("\nDONE 🐵\n") 
