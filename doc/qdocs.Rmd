@@ -1,5 +1,5 @@
 ---
-title: "A Guide to QDOC: A Flexible Text Format for (Q)uestionnaire (Doc)uments"
+title: "How to format your questionnaire document"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -10,11 +10,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-<font size="5">QDOC is a new format for writing survey questionnaires.</font>
+**This article introduces QDOC, a flexible markup syntax for (q)uestionnaire (doc)uments**
 
-It involves the usage of HTML-style tags to express survey questions unambiguously.
+It involves the usage of HTML-style tags to unambiguously define your survey questions while writing up your questionnaire.
 
-Most importantly, it can be easily parsed and uploaded to survey vendors such as SurveyMonkey and Qualtrics.
+The main purpose is for your questionnaire to be easily parsed in R and uploaded to SurveyMonkey.
 
 # Overview
 
@@ -29,11 +29,11 @@ There are two ways to write a plain-text questionnaire up as a QDOC:
   * leaves less ambiguity / room for error in parsing multi-line choices, rows, columns
   * but requires more specificity (e.g. question type, delineating choices)
 
-*QDOCs can also be written up in Google Docs so long as they conform to either format.*
+QDOCs can also be written up in Google Docs so long as they conform to either format.
 
 The QDOC format is meant to be compatible with both the [SurveyMonkey API](https://developer.surveymonkey.com/api/v3/) and with [Qualtrics text formats](https://www.qualtrics.com/support/survey-platform/survey-module/survey-tools/import-and-export-surveys/).
 
-# Tag Syntax
+# Syntax
 
 The following tags are to be used in simple-text, advanced-text, or Google Doc questionnaires. Note that these should be case-insensitive (i.e. **[[PAGE]]** operates the same as **[[Page]]**):
 
