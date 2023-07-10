@@ -7,12 +7,15 @@ strip_qdoc_tags <- function(x) {
 
 sanitize <- function(x) {
   x <- gsub("<br>","\n", x)
+  x <- strip_tags(x)
+  x <- strip_qdoc_tags(x)
   return(x)
 }
 
 #' @method print qdoc
 #' @export
 print.qdoc <- function(x) {
+  cat("\n")
   if ("page_count" %in% names(x)) {
     P <- x$page_count
   } else {
@@ -26,15 +29,15 @@ print.qdoc <- function(x) {
   if ("title" %in% names(x)) {
     message(x$title)
   }
-  message(sprintf("- %d questions\n- %d pages", Q, P))
+  message(sprintf("* %d questions\n* %d pages", Q, P))
   if ("response_count" %in% names(x)) {
-    message(sprintf("- %d responses", x$response_count))
+    message(sprintf("* %d responses", x$response_count))
   }
   if ("edit_url" %in% names(x)) {
-    message(sprintf("- edit URL: %s", x$edit_url))
+    message(sprintf("* edit URL:\n\t%s", x$edit_url))
   }
   if ("preview_url" %in% names(x)) {
-    message(sprintf("- preview URL: %s", x$preview_url))
+    message(sprintf("* preview URL:\n\t%s", x$preview_url))
   }
   q <- 1
   for (p in 1:P) {
@@ -61,6 +64,13 @@ print.qdoc <- function(x) {
     }
   }
   cat(paste0(rep(" ", nchar(prompt)+1), collapse=""))
+}
+
+#' @method print qdoc.presentation
+#' @export
+print.qdoc.presentation <- function(x) {
+  ## confusing name, this family of questions is mostly just "descriptive text"
+  cat(sanitize(x[["headings"]][[1]][[1]]))
 }
 
 #' @method print qdoc.multiple_choice

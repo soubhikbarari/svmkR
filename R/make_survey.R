@@ -57,7 +57,7 @@ qdoc.question <- function(text,
     q$family <- "matrix"
     q$subtype <- get_subtype(text, q$family)
     q$headings <- list(get_heading(text))
-    q$forced_ranking <- FALSE ## curently don't support option to change this (yet)
+    q$forced_ranking <- FALSE ## currently don't support option to change this (yet)
     q$answers <- list()
     q$answers$rows <- get_rows(text)
     if (q$subtype == "rating") {
