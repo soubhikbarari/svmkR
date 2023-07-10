@@ -12,7 +12,7 @@
 
 
 
-<title>A Guide to QDOC: A Flexible Text Format for (Q)uestionnaire (Doc)uments</title>
+<title>How to format your questionnaire document</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -235,14 +235,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">A Guide to QDOC: A Flexible Text Format for
-(Q)uestionnaire (Doc)uments</h1>
+<h1 class="title toc-ignore">How to format your questionnaire
+document</h1>
 
 
 <div id="TOC">
 <ul>
 <li><a href="#overview" id="toc-overview"><span class="toc-section-number">1</span> Overview</a></li>
-<li><a href="#tag-syntax" id="toc-tag-syntax"><span class="toc-section-number">2</span> Tag Syntax</a></li>
+<li><a href="#syntax" id="toc-syntax"><span class="toc-section-number">2</span> Syntax</a></li>
 <li><a href="#question-families" id="toc-question-families"><span class="toc-section-number">3</span> Question Families</a>
 <ul>
 <li><a href="#multiple-choice-single-answer" id="toc-multiple-choice-single-answer"><span class="toc-section-number">3.1</span> Multiple Choice (Single
@@ -255,12 +255,12 @@ Answer)</a></li>
 </ul>
 </div>
 
-<p><font size="5">QDOC is a new format for writing survey
-questionnaires.</font></p>
-<p>It involves the usage of HTML-style tags to express survey questions
-unambiguously.</p>
-<p>Most importantly, it can be easily parsed and uploaded to survey
-vendors such as SurveyMonkey and Qualtrics.</p>
+<p><strong>This article introduces QDOC, a flexible markup syntax for
+(q)uestionnaire (doc)uments</strong></p>
+<p>It involves the usage of HTML-style tags to unambiguously define your
+survey questions while writing up your questionnaire.</p>
+<p>The main purpose is for your questionnaire to be easily parsed in R
+and uploaded to SurveyMonkey.</p>
 <div id="overview" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Overview</h1>
 <p>There are two ways to write a plain-text questionnaire up as a
@@ -279,14 +279,14 @@ choices, rows, columns</li>
 choices)</li>
 </ul></li>
 </ul>
-<p><em>QDOCs can also be written up in Google Docs so long as they
-conform to either format.</em></p>
+<p>QDOCs can also be written up in Google Docs so long as they conform
+to either format.</p>
 <p>The QDOC format is meant to be compatible with both the <a href="https://developer.surveymonkey.com/api/v3/">SurveyMonkey API</a>
 and with <a href="https://www.qualtrics.com/support/survey-platform/survey-module/survey-tools/import-and-export-surveys/">Qualtrics
 text formats</a>.</p>
 </div>
-<div id="tag-syntax" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Tag Syntax</h1>
+<div id="syntax" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Syntax</h1>
 <p>The following tags are to be used in simple-text, advanced-text, or
 Google Doc questionnaires. Note that these should be case-insensitive
 (i.e. <strong>[[PAGE]]</strong> operates the same as
