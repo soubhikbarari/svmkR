@@ -15,6 +15,15 @@ You can:
 
 **Note: This is the development branch, where new features for the coming release are being implemented and tested.**
 
+## Installation
+
+To install the development version of `svmkR` from GitHub:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("soubhikbarari/svmkR@dev")
+```
+
 ## Authors
 
 * [Soubhik Barari](https://github.com/soubhikbarari) (creator/maintainer)
