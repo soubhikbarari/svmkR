@@ -2,6 +2,7 @@
 #' 
 #' Look up all of the target population profiles (i.e. specific variables and their marginal and joint distributions) available to weight your survey to.
 #'
+#' @return list of all named target population profiles available.
 #' @export
 list_targets <- function() {
   targets.dirpath <- system.file("extdata", "targets", package = "svmkR")
@@ -14,6 +15,7 @@ list_targets <- function() {
 #' Read in a default target population (i.e. specific variables and their marginal and joint distributions) available through this package for you to weight your survey to.
 #'
 #' @param id name of target population to read in (see \code{list_targets} for options).
+#' @return list of dataframes associated with named target population profile.
 #' @export
 get_target <- function(name) {
   target.dirpath <- system.file("extdata", "targets", name, package = "svmkR")
@@ -31,6 +33,7 @@ get_target <- function(name) {
 #' Find all information (e.g. applicable survey questions, applicable levels) for a potential weighting target variable.
 #' 
 #' @param target.var name of a potential target variable used in a target population profile (see \code{list_targets()}).
+#' @return dataframe of question-variable mappings associated with searched target variable.
 #' @export
 look_up_weighting_variable <- function(target.var) {
   qmap <- suppressMessages(readr::read_csv(system.file("extdata", "qmap.txt", package = "svmkR")))
@@ -42,6 +45,7 @@ look_up_weighting_variable <- function(target.var) {
 #' Find all information (e.g. applicable survey questions, applicable levels) for a potential weight-able survey question.
 #' 
 #' @param survey.question name of a survey question to map to a variable in some target distribution (see \code{list_targets()}).
+#' @return dataframe of question-variable mappings associated with searched survey question.
 #' @export
 look_up_weighting_question <- function(survey.question) {
   qmap <- suppressMessages(readr::read_csv(system.file("extdata", "qmap.txt", package = "svmkR")))
@@ -88,12 +92,13 @@ find_stems <- function(q) {
 #' 
 #' The default SurveyMonkey to weight surveys is via raking. For an overview of raking, see \href{https://www.abtassociates.com/raking-survey-data-aka-sample-balancing}{this guide}.
 #'
-#' @param data input survey data frame.
+#' @param data input data frame of survey responses.
 #' @param target either name of target population (run \code{list_targets()} for options) or a list of dataframes corresponding to different population distributions to weight survey to.
 #' @param auto.remove remove any weighting variables that can't be found in survey.
 #' @param initial.weights initial set of weights as starting point for raking algorithm.
 #' @param trim.weights percentiles to trim your weights (default are 0.01 and .99, or 1\% and 99\%); can specify either an upper percentile or both a lower and upper percentile.
 #' @param verbose output helpful progress and warning messages (recommended).
+#' @return output contains (1) estimated weights and (2) summary of how weights will affect your data
 #' @export
 #' @examples
 #' 
@@ -252,7 +257,7 @@ weight_to <- function(data,
   if (verbose)
     message(sprintf("\nDropped %d (%0.0f%%) incomplete observations", nrow(data)-nrow(data.mapped), 100-(100*nrow(data.mapped)/nrow(data))))
   
-  data.wtd <- rake(design = svydesign(ids = ~1, data = data.mapped, weights = data.mapped$initwt),
+  data.wtd <- rake(design = survey::svydesign(ids = ~1, data = data.mapped, weights = data.mapped$initwt),
                    sample.margins = margin.formulas,
                    population.margins = pop.margins,
                    control = list(maxit = 200, epsilon = 1, verbose = FALSE))

@@ -4,7 +4,7 @@
 #' 
 #' Before running, must make sure that the input \code{data} is properly labelled/coded according to \code{expss} conventions (see example below). When doing so, make sure that values across multi-response variables (i.e. 'select all that apply' type questions) are given distinct levels, that is converted from binary to categorical (see example).
 #'
-#' @param data input survey data frame.
+#' @param data input data frame of survey responses.
 #' @param row.vars list of column names in \code{data} to put in the banner rows; any multi-response variables can be specified either as a regex string (e.g. \code{"var_*"}) or as a nested vector of all of the option columns (e.g. \code{c("var_1", "var_2",...)}).
 #' @param col.vars list of column names in \code{data} to put in the banner columns; any multi-response variables can be specified either as a regex string (e.g. \code{"var_*"}) or as a nested vector of all of the option columns (e.g. \code{c("var_1", "var_2",...)}).
 #' @param weight.var optional column name in \code{data} to use for weighting.
@@ -304,7 +304,6 @@ make_banners <- function(data,
 #' @param file.overwrite whether or not to overwrite the file specified at \code{file.path}; otherwise keep both and update the file path.
 #' @param file.append whether or not to append the current tab to the file specified at \code{file.path} if it exists; if there is already a tab with the name specified, update the tab name.
 #' @param tab.name name of the tab/sheet to populate.
-#' @param logo whether or not to include either the SurveyMonkey logo ("svmk") or the Momentive logo ("mntv") in the banner headers.
 #' @param include.moe whether or not to include the Margin of Error for the survey in the banner headers.
 #' @param include.dates whether or not to include the date range for survey responses in the banner headers.
 #' @param date.var if \code{include.dates} is set to \code{TRUE}, the date variable to look for in the data used to create \code{banners.output}.
@@ -419,7 +418,7 @@ write_banners <- function(banners.output,
                           drive.folder.path = NULL,
                           drive.overwrite = TRUE,
                           tab.name = "Main", 
-                          logo = "mntv",
+                          logo = NULL,
                           include.moe = TRUE,
                           include.dates = TRUE,
                           date.var = "response_date",
@@ -428,265 +427,266 @@ write_banners <- function(banners.output,
   
   if (!endsWith(file.path, ".xlsx"))
     stop("currently only supports saving to `.xlsx` files.")
+  if (!is.null(logo))
+    warning("passing in logo is deprecated ... defaulting to SurveyMonkey logo")
   
   # Style
   SVMK_GREEN        = "#01B86E"
-    MNTV_ORANGE       = "#F9AA6F"
-      MNTV_ORANGE_LIGHT = "#FADCC5"
-        MNTV_RED          = "#E67C73"  
+  MNTV_ORANGE       = "#F9AA6F"
+  MNTV_ORANGE_LIGHT = "#FADCC5"
+  MNTV_RED          = "#E67C73"
           
-        wrap_top         <- openxlsx::createStyle(valign="top", wrapText=TRUE)
-        italic_right     <- openxlsx::createStyle(halign="right", textDecoration="italic")
-        bold             <- openxlsx::createStyle(textDecoration="bold")
-        bold_wrap_center <- openxlsx::createStyle(halign="center", textDecoration="bold", wrapText=TRUE)
-        border_bottom    <- openxlsx::createStyle(border="bottom")
-        border_right     <- openxlsx::createStyle(border="right")
-        bold_red_bottom  <- openxlsx::createStyle(textDecoration="bold", fontColour="red", valign="bottom")
-        percentage       <- openxlsx::createStyle(numFmt="0%", halign="center")
-        integer          <- openxlsx::createStyle(numFmt="0", halign="center")  
-        
-        # Data
-        banner.data <- banners.output$banner.data
-        banner.table <- banners.output$banner.table
-        banner.data.frame <- banners.output$banner.data.frame
-        banner.settings <- banners.output$banner.settings
-        row.questions <- banners.output$row.questions
-        col.headers <- banners.output$col.headers
-        col.questions <- banners.output$col.questions
-        
-        if (file.append & file.exists(file.path)) {
-          wb <- openxlsx::loadWorkbook(file.path)
-          #openxlsx::saveWorkbook(wb, file.path, overwrite = TRUE)
-          existing.tabs <- openxlsx::getSheetNames(file.path)
-          i <- 1
-          tab.name.0 <- tab.name
-          while (tab.name %in% existing.tabs) {
-            tab.name <- paste0(tab.name.0, " (",i,")")
-            i <- i + 1
-          }
-          message(sprintf("+ Attaching tab `%s` to existing workbook", tab.name))
-          sh = openxlsx::addWorksheet(wb, tab.name, gridLines=FALSE)
-        } else {
-          message("+ Making new workbook")
-          wb = openxlsx::createWorkbook()
-          sh = openxlsx::addWorksheet(wb, tab.name, gridLines=FALSE)
-        }    
-        
-        date_label <- ""
-        if (include.dates) {
-          if (!is.null(date.var) & date.var %in% colnames(banner.data)) {
-            date.var <- date.var
-            message("+ Calculating date range")
-            date_label <- paste0(as.character(min(banner.data[[date.var]])), " to ", as.character(max(banner.data[[date.var]])))
-          } else if (banners.output$date.var %in% colnames(banner.data)) {
-            date.var <- banners.output$date.var
-            message("+ Calculating date range")
-            date_label <- paste0(as.character(min(banner.data[[date.var]])), " to ", as.character(max(banner.data[[date.var]])))
-          }
-        }
-        moe_label <- ""
-        if (include.moe) {
-          message("+ Calculating margin of error")
-          if (!("weight.var" %in% names(banners.output)) & !is.null(banners.output$weight.var)) {
-            if (banners.output$weight.var %in% colnames(banner.data)) {
-              banner.data$weight <- banner.data[[banners.output$weight.var]]
-            } else if (!is.null(weight.var) & weight.var %in% colnames(banner.data)) {
-              banner.data$weight <- banner.data[[weight.var]]
-            } else {
-              banner.data$weight <- 1
-            }
-          } else {
-            banner.data$weight <- 1
-          }
-          moe <- simu_moe(weights = banner.data$weight)
-          moe_label <- paste0("Margin of error estimate: ", as.character(plyr::round_any(moe*100, 0.5, ceiling)), "%")
-        }
-        
-        writeData <- openxlsx::writeData
-        
-        # Headers
-        if (logo == "svmk" | logo == TRUE)
-          openxlsx::insertImage(wb, sheet = tab.name, file=system.file("extdata", "svmk.png", package = "svmkR"), startRow=1, startCol=1, width=3.5, height=0.5)
-        if (logo == "mntv")
-          openxlsx::insertImage(wb, sheet = tab.name, file=system.file("extdata", "mntv.png", package = "svmkR"), startRow=1, startCol=1, width=3.5, height=0.5)
-        message(sprintf("+ Formatting tab `%s`", tab.name))
-        
-        openxlsx::writeData(wb, sheet = tab.name, title, startRow = 1, startCol = 4)
-        openxlsx::writeData(wb, sheet = tab.name, date_label, startRow = 2, startCol = 4)
-        openxlsx::writeData(wb, sheet = tab.name, moe_label, startRow = 3, startCol = 4)
-        
-        ## Allow for two layers of nesting
-        if (all(col.headers[3,] == "")) {
-          col.headers <- col.headers[1:2,]
-          row_offset <- 6
-          col_nested <- F
-        } else {
-          row_offset <- 7
-          col_nested <- T
-        }
-        openxlsx::writeData(wb, sheet = tab.name, banner.data.frame, startRow = row_offset, startCol = 1)
-        openxlsx::writeData(wb, sheet = tab.name, col.headers, startRow = 5, startCol = 1, colNames = FALSE)
-        
-        
-        # Row Labels
-        message("+ Merging row labels")
-        for(i in 1:nrow(row.questions)) {
-          start <- row_offset + (row.questions %>%
-                                   dplyr::filter(dplyr::row_number() == i) %>%
-                                   dplyr::select(row_start) %>%
-                                   dplyr::pull())
-          end <- row_offset + (row.questions %>%
-                                 dplyr::filter(dplyr::row_number() == i) %>%
-                                 dplyr::select(row_end) %>%
-                                 dplyr::pull())
-          openxlsx::mergeCells(wb, sheet = tab.name, cols = 1, rows = start:end)
-        }
-        
-        # Column Labels
-        message("+ Merging column labels")
-        for(i in 1:nrow(col.questions)) {
-          start <- 0 + (col.questions %>%
-                          dplyr::filter(dplyr::row_number() == i) %>%
-                          dplyr::select(col_start) %>%
-                          dplyr::pull())
-          end <- 0 + (col.questions %>%
-                        dplyr::filter(dplyr::row_number() == i) %>%
-                        dplyr::select(col_end) %>%
-                        dplyr::pull())
-          openxlsx::mergeCells(wb, sheet = tab.name, cols = start:end, rows = 5)
-          if (col_nested) {
-            for (j in col.questions$col_start[i]:col.questions$col_end[i]) {
-              ### merge bottom label with middle label if no nested value is there
-              if (col.headers[3,j] == "") {
-                openxlsx::mergeCells(wb, sheet = tab.name, cols = j, rows = 6:7)
-              }
-            }
-            
-          }
-        }
-        # Style Header
-        message("+ Styling header")
-        openxlsx::setColWidths(wb, sheet = tab.name, col = 1:2, c(24, 32))
-        openxlsx::setColWidths(wb, sheet = tab.name, col = 3:(max(col.questions$col_end)), 10)
-        
-        openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset + min(row.questions$row_start)):(row_offset + max(row.questions$row_end)), cols = 1,
-                           style = wrap_top, stack = TRUE)
-        if (col_nested) {
-          openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset-2), cols = 3:(max(col.questions$col_end)),
-                             style = bold_wrap_center, stack = TRUE)    
-        }
-        openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset-1), cols = 3:(max(col.questions$col_end)),
-                           style = bold_wrap_center, stack = TRUE)
-        openxlsx::addStyle(wb, sheet = tab.name, rows = row_offset, cols = 3:(max(col.questions$col_end)),
-                           style = bold_wrap_center, stack = TRUE)
-        openxlsx::addStyle(wb, sheet = tab.name, rows = 1:3, cols = 1,
-                           style = bold_red_bottom, stack = TRUE)
-        openxlsx::addStyle(wb, sheet = tab.name, rows = 1:3, cols = 4,
-                           style = bold, stack = TRUE)
-        
-        # Style Totals
-        if (banner.settings$total.row.position %in% c("below","above")) {
-          message("+ Styling totals")
-          for(i in 1:nrow(row.questions)) {
-            start <- row_offset + (row.questions %>%
-                                     dplyr::filter(dplyr::row_number() == i) %>% {
-                                       if (banner.settings$total.row.position == "above")
-                                         dplyr::select(., row_start)
-                                       else if (banner.settings$total.row.position == "below")
-                                         dplyr::select(., row_end)
-                                     } %>%
-                                     dplyr::pull())
-            ## colorize total labels
-            n_style <- openxlsx::createStyle(halign="center",
-                                             fontColour = "white",
-                                             fgFill = "#262626",
-                                             textDecoration="italic")
-            openxlsx::addStyle(wb, 
-                               sheet = tab.name, 
-                               rows = start, 
-                               cols = 2:(max(col.questions$col_end)), 
-                               gridExpand = TRUE,
-                               style = n_style,
-                               stack = TRUE)
-            ## colorize total integers
-            openxlsx::conditionalFormatting(wb,
-                                            sheet = tab.name,
-                                            rows = start,
-                                            cols = 3:(max(col.questions$col_end)),
-                                            # style = c(MNTV_ORANGE_LIGHT, MNTV_ORANGE),
-                                            style = c("#B8B8B8", "#000000"),
-                                            # rule = c(0, 1),
-                                            type = "colourScale")
-          }
-        }
-        # Style Percentages
-        message("+ Styling percentages")
-        for(i in 1:nrow(row.questions)) {
-          start <- (row.questions %>%
-                      dplyr::filter(dplyr::row_number() == i) %>%
-                      dplyr::select(row_start) %>%
-                      dplyr::pull())
-          end <- (row.questions %>%
+  wrap_top         <- openxlsx::createStyle(valign="top", wrapText=TRUE)
+  italic_right     <- openxlsx::createStyle(halign="right", textDecoration="italic")
+  bold             <- openxlsx::createStyle(textDecoration="bold")
+  bold_wrap_center <- openxlsx::createStyle(halign="center", textDecoration="bold", wrapText=TRUE)
+  border_bottom    <- openxlsx::createStyle(border="bottom")
+  border_right     <- openxlsx::createStyle(border="right")
+  bold_red_bottom  <- openxlsx::createStyle(textDecoration="bold", fontColour="red", valign="bottom")
+  percentage       <- openxlsx::createStyle(numFmt="0%", halign="center")
+  integer          <- openxlsx::createStyle(numFmt="0", halign="center")  
+  
+  # Data
+  banner.data <- banners.output$banner.data
+  banner.table <- banners.output$banner.table
+  banner.data.frame <- banners.output$banner.data.frame
+  banner.settings <- banners.output$banner.settings
+  row.questions <- banners.output$row.questions
+  col.headers <- banners.output$col.headers
+  col.questions <- banners.output$col.questions
+  
+  if (file.append & file.exists(file.path)) {
+    wb <- openxlsx::loadWorkbook(file.path)
+    #openxlsx::saveWorkbook(wb, file.path, overwrite = TRUE)
+    existing.tabs <- openxlsx::getSheetNames(file.path)
+    i <- 1
+    tab.name.0 <- tab.name
+    while (tab.name %in% existing.tabs) {
+      tab.name <- paste0(tab.name.0, " (",i,")")
+      i <- i + 1
+    }
+    message(sprintf("+ Attaching tab `%s` to existing workbook", tab.name))
+    sh = openxlsx::addWorksheet(wb, tab.name, gridLines=FALSE)
+  } else {
+    message("+ Making new workbook")
+    wb = openxlsx::createWorkbook()
+    sh = openxlsx::addWorksheet(wb, tab.name, gridLines=FALSE)
+  }    
+  
+  date_label <- ""
+  if (include.dates) {
+    if (!is.null(date.var) & date.var %in% colnames(banner.data)) {
+      date.var <- date.var
+      message("+ Calculating date range")
+      banner.data[[date.var]] <- substr(banner.data[[date.var]], 1, 10)
+      date_label <- paste0(as.character(min(banner.data[[date.var]])), " to ", as.character(max(banner.data[[date.var]])))
+    } else if (banners.output$date.var %in% colnames(banner.data)) {
+      date.var <- banners.output$date.var
+      message("+ Calculating date range")
+      banner.data[[date.var]] <- substr(banner.data[[date.var]], 1, 10)
+      date_label <- paste0(as.character(min(banner.data[[date.var]])), " to ", as.character(max(banner.data[[date.var]])))
+    }
+  }
+  moe_label <- ""
+  if (include.moe) {
+    message("+ Calculating margin of error")
+    if (!("weight.var" %in% names(banners.output)) & !is.null(banners.output$weight.var)) {
+      if (banners.output$weight.var %in% colnames(banner.data)) {
+        banner.data$weight <- banner.data[[banners.output$weight.var]]
+      } else if (!is.null(weight.var) & weight.var %in% colnames(banner.data)) {
+        banner.data$weight <- banner.data[[weight.var]]
+      } else {
+        banner.data$weight <- 1
+      }
+    } else {
+      banner.data$weight <- 1
+    }
+    moe <- simu_moe(weights = banner.data$weight)
+    moe_label <- paste0("Margin of error estimate: ", as.character(plyr::round_any(moe*100, 0.5, ceiling)), "%")
+  }
+  
+  writeData <- openxlsx::writeData
+  
+  # Headers
+  openxlsx::insertImage(wb, sheet = tab.name, file=system.file("extdata", "svmk.png", package = "svmkR"), startRow=1, startCol=1, width=3.5, height=0.5)
+  message(sprintf("+ Formatting tab `%s`", tab.name))
+  
+  openxlsx::writeData(wb, sheet = tab.name, title, startRow = 1, startCol = 4)
+  openxlsx::writeData(wb, sheet = tab.name, date_label, startRow = 2, startCol = 4)
+  openxlsx::writeData(wb, sheet = tab.name, moe_label, startRow = 3, startCol = 4)
+  
+  ## Allow for two layers of nesting
+  if (all(col.headers[3,] == "")) {
+    col.headers <- col.headers[1:2,]
+    row_offset <- 6
+    col_nested <- F
+  } else {
+    row_offset <- 7
+    col_nested <- T
+  }
+  openxlsx::writeData(wb, sheet = tab.name, banner.data.frame, startRow = row_offset, startCol = 1)
+  openxlsx::writeData(wb, sheet = tab.name, col.headers, startRow = 5, startCol = 1, colNames = FALSE)
+  
+  
+  # Row Labels
+  message("+ Merging row labels")
+  for(i in 1:nrow(row.questions)) {
+    start <- row_offset + (row.questions %>%
+                             dplyr::filter(dplyr::row_number() == i) %>%
+                             dplyr::select(row_start) %>%
+                             dplyr::pull())
+    end <- row_offset + (row.questions %>%
+                           dplyr::filter(dplyr::row_number() == i) %>%
+                           dplyr::select(row_end) %>%
+                           dplyr::pull())
+    openxlsx::mergeCells(wb, sheet = tab.name, cols = 1, rows = start:end)
+  }
+  
+  # Column Labels
+  message("+ Merging column labels")
+  for(i in 1:nrow(col.questions)) {
+    start <- 0 + (col.questions %>%
                     dplyr::filter(dplyr::row_number() == i) %>%
-                    dplyr::select(row_end) %>%
+                    dplyr::select(col_start) %>%
                     dplyr::pull())
-          if (banner.settings$total.row.position == "above") {
-            start <- start + (row_offset+1); end <- end + row_offset;
-          } else if (banner.settings$total.row.position == "below") {
-            start <- start + row_offset; end <- end + (row_offset-1);
-          }
-          
-          ## colorize percentages
-          openxlsx::conditionalFormatting(wb, sheet = tab.name,
-                                          rows = start:end, 
-                                          cols = 3:(max(col.questions$col_end)), 
-                                          # style = c("white", SVMK_GREEN),
-                                          # rule = c(0, 1),
-                                          style = c("white", SVMK_GREEN, MNTV_RED),
-                                          rule = c(0, .5, 1),
-                                          type = "colourScale")
-          ## force percentage types
-          openxlsx::addStyle(wb, sheet = tab.name,
-                             rows = start:end,
-                             cols = 3:(max(col.questions$col_end)),
-                             gridExpand = TRUE,
-                             style = percentage,
-                             stack = TRUE)
-          
+    end <- 0 + (col.questions %>%
+                  dplyr::filter(dplyr::row_number() == i) %>%
+                  dplyr::select(col_end) %>%
+                  dplyr::pull())
+    openxlsx::mergeCells(wb, sheet = tab.name, cols = start:end, rows = 5)
+    if (col_nested) {
+      for (j in col.questions$col_start[i]:col.questions$col_end[i]) {
+        ### merge bottom label with middle label if no nested value is there
+        if (col.headers[3,j] == "") {
+          openxlsx::mergeCells(wb, sheet = tab.name, cols = j, rows = 6:7)
         }
-        # Clean up
-        message("+ Cleaning up")
-        openxlsx::deleteData(wb, sheet = tab.name, rows = 5, cols = 1)
-        openxlsx::deleteData(wb, sheet = tab.name, rows = 6, cols = 1)
-        openxlsx::deleteData(wb, sheet = tab.name, rows = 5, cols = 2)
-        openxlsx::deleteData(wb, sheet = tab.name, rows = 6, cols = 2)
-        openxlsx::deleteData(wb, sheet = tab.name, rows = 5, cols = 3)
-        openxlsx::addStyle(wb, sheet = tab.name, rows = 4:(row_offset + max(row.questions$row_end)), cols = 1:(max(col.questions$col_end)),
-                           style = border_bottom, gridExpand = TRUE, stack = TRUE)
-        openxlsx::addStyle(wb, sheet = tab.name, rows = 5:(row_offset + max(row.questions$row_end)), cols = 1:(max(col.questions$col_end)),
-                           style = border_right, gridExpand=TRUE, stack = TRUE)
-        openxlsx::freezePane(wb, sheet = tab.name, firstActiveRow = row_offset+1, firstActiveCol = 4)
-        
-        # Save
-        if (!is.null(file.path)) {
-          
-          if (file.overwrite | !file.exists(file.path)) {
-            file.path.0 <- file.path
-            openxlsx::saveWorkbook(wb, file = file.path, overwrite = TRUE)
-            message(sprintf("SAVED excel file to `%s`.", file.path))
-          } else {
-            i <- 1
-            file.path.0 <- file.path
-            while (file.exists(file.path)) {
-              file.path <- gsub("\\.xls", sprintf(" (%i).xls", i), file.path.0)
-              i <- i + 1
-            }
-            openxlsx::saveWorkbook(wb, file = file.path, overwrite = TRUE)
-            message(sprintf("SAVED excel file to `%s`.", file.path))
-          }
-        }
-        
-        return(wb)
+      }
+      
+    }
+  }
+  # Style Header
+  message("+ Styling header")
+  openxlsx::setColWidths(wb, sheet = tab.name, col = 1:2, c(24, 32))
+  openxlsx::setColWidths(wb, sheet = tab.name, col = 3:(max(col.questions$col_end)), 10)
+  
+  openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset + min(row.questions$row_start)):(row_offset + max(row.questions$row_end)), cols = 1,
+                     style = wrap_top, stack = TRUE)
+  if (col_nested) {
+    openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset-2), cols = 3:(max(col.questions$col_end)),
+                       style = bold_wrap_center, stack = TRUE)    
+  }
+  openxlsx::addStyle(wb, sheet = tab.name, rows = (row_offset-1), cols = 3:(max(col.questions$col_end)),
+                     style = bold_wrap_center, stack = TRUE)
+  openxlsx::addStyle(wb, sheet = tab.name, rows = row_offset, cols = 3:(max(col.questions$col_end)),
+                     style = bold_wrap_center, stack = TRUE)
+  openxlsx::addStyle(wb, sheet = tab.name, rows = 1:3, cols = 1,
+                     style = bold_red_bottom, stack = TRUE)
+  openxlsx::addStyle(wb, sheet = tab.name, rows = 1:3, cols = 4,
+                     style = bold, stack = TRUE)
+  
+  # Style Totals
+  if (banner.settings$total.row.position %in% c("below","above")) {
+    message("+ Styling totals")
+    for(i in 1:nrow(row.questions)) {
+      start <- row_offset + (row.questions %>%
+                               dplyr::filter(dplyr::row_number() == i) %>% {
+                                 if (banner.settings$total.row.position == "above")
+                                   dplyr::select(., row_start)
+                                 else if (banner.settings$total.row.position == "below")
+                                   dplyr::select(., row_end)
+                               } %>%
+                               dplyr::pull())
+      ## colorize total labels
+      n_style <- openxlsx::createStyle(halign="center",
+                                       fontColour = "white",
+                                       fgFill = "#262626",
+                                       textDecoration="italic")
+      openxlsx::addStyle(wb, 
+                         sheet = tab.name, 
+                         rows = start, 
+                         cols = 2:(max(col.questions$col_end)), 
+                         gridExpand = TRUE,
+                         style = n_style,
+                         stack = TRUE)
+      ## colorize total integers
+      openxlsx::conditionalFormatting(wb,
+                                      sheet = tab.name,
+                                      rows = start,
+                                      cols = 3:(max(col.questions$col_end)),
+                                      # style = c(MNTV_ORANGE_LIGHT, MNTV_ORANGE),
+                                      style = c("#B8B8B8", "#000000"),
+                                      # rule = c(0, 1),
+                                      type = "colourScale")
+    }
+  }
+  # Style Percentages
+  message("+ Styling percentages")
+  for(i in 1:nrow(row.questions)) {
+    start <- (row.questions %>%
+                dplyr::filter(dplyr::row_number() == i) %>%
+                dplyr::select(row_start) %>%
+                dplyr::pull())
+    end <- (row.questions %>%
+              dplyr::filter(dplyr::row_number() == i) %>%
+              dplyr::select(row_end) %>%
+              dplyr::pull())
+    if (banner.settings$total.row.position == "above") {
+      start <- start + (row_offset+1); end <- end + row_offset;
+    } else if (banner.settings$total.row.position == "below") {
+      start <- start + row_offset; end <- end + (row_offset-1);
+    }
+    
+    ## colorize percentages
+    openxlsx::conditionalFormatting(wb, sheet = tab.name,
+                                    rows = start:end, 
+                                    cols = 3:(max(col.questions$col_end)), 
+                                    # style = c("white", SVMK_GREEN),
+                                    # rule = c(0, 1),
+                                    style = c("white", SVMK_GREEN, MNTV_RED),
+                                    rule = c(0, .5, 1),
+                                    type = "colourScale")
+    ## force percentage types
+    openxlsx::addStyle(wb, sheet = tab.name,
+                       rows = start:end,
+                       cols = 3:(max(col.questions$col_end)),
+                       gridExpand = TRUE,
+                       style = percentage,
+                       stack = TRUE)
+    
+  }
+  # Clean up
+  message("+ Cleaning up")
+  openxlsx::deleteData(wb, sheet = tab.name, rows = 5, cols = 1)
+  openxlsx::deleteData(wb, sheet = tab.name, rows = 6, cols = 1)
+  openxlsx::deleteData(wb, sheet = tab.name, rows = 5, cols = 2)
+  openxlsx::deleteData(wb, sheet = tab.name, rows = 6, cols = 2)
+  openxlsx::deleteData(wb, sheet = tab.name, rows = 5, cols = 3)
+  openxlsx::addStyle(wb, sheet = tab.name, rows = 4:(row_offset + max(row.questions$row_end)), cols = 1:(max(col.questions$col_end)),
+                     style = border_bottom, gridExpand = TRUE, stack = TRUE)
+  openxlsx::addStyle(wb, sheet = tab.name, rows = 5:(row_offset + max(row.questions$row_end)), cols = 1:(max(col.questions$col_end)),
+                     style = border_right, gridExpand=TRUE, stack = TRUE)
+  openxlsx::freezePane(wb, sheet = tab.name, firstActiveRow = row_offset+1, firstActiveCol = 4)
+  
+  # Save
+  if (!is.null(file.path)) {
+    
+    if (file.overwrite | !file.exists(file.path)) {
+      file.path.0 <- file.path
+      openxlsx::saveWorkbook(wb, file = file.path, overwrite = TRUE)
+      message(sprintf("SAVED excel file to `%s`.", file.path))
+    } else {
+      i <- 1
+      file.path.0 <- file.path
+      while (file.exists(file.path)) {
+        file.path <- gsub("\\.xls", sprintf(" (%i).xls", i), file.path.0)
+        i <- i + 1
+      }
+      openxlsx::saveWorkbook(wb, file = file.path, overwrite = TRUE)
+      message(sprintf("SAVED excel file to `%s`.", file.path))
+    }
+  }
+  
+  return(wb)
 }
 
 #' Upload banners file to Google Drive
