@@ -124,6 +124,6 @@ ev22.banners <- ev22.coded \%>\%
                 logo               = "mntv") \%>\%
   upload_banners(drive.overwrite   = TRUE,
                  drive.file.name   = "EV Study Crosstabs",
-                 drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")
+                 drive.folder.path = "https://drive.google.com/drive/u/1/folders/XXXX")
 }
 }

@@ -13,7 +13,7 @@ fetch_survey_obj(id, oauth_token = get_token())
 By default, retrieved from \code{get_token()}.}
 }
 \value{
-a survey object, which is a nested list containing info about the survey.
+A survey object of type \code{qdoc}, which is a nested list containing info about the survey and underlying questionnaire. Note that you can print this object for an informative summary like you can any other qdoc object.
 }
 \description{
 Download a survey's responses

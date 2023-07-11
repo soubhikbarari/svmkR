@@ -13,10 +13,10 @@ write_banners(
   drive.folder.path = NULL,
   drive.overwrite = TRUE,
   tab.name = "Main",
-  logo = "mntv",
+  logo = NULL,
   include.moe = TRUE,
   include.dates = TRUE,
-  date.var = "StartDate",
+  date.var = "response_date",
   weight.var = NULL,
   ...
 )
@@ -33,8 +33,6 @@ write_banners(
 \item{file.append}{whether or not to append the current tab to the file specified at \code{file.path} if it exists; if there is already a tab with the name specified, update the tab name.}
 
 \item{tab.name}{name of the tab/sheet to populate.}
-
-\item{logo}{whether or not to include either the SurveyMonkey logo ("svmk") or the Momentive logo ("mntv") in the banner headers.}
 
 \item{include.moe}{whether or not to include the Margin of Error for the survey in the banner headers.}
 
@@ -148,6 +146,6 @@ ev22.banners <- ev22.coded \%>\%
                 logo               = "mntv") \%>\%
   upload_banners(drive.overwrite   = TRUE,
                  drive.file.name   = "EVs Crosstabs",
-                 drive.folder.path = "https://drive.google.com/drive/u/1/folders/0B-OW6-tDrcdMTWw1MFFhdVNQLTg")
+                 drive.folder.path = "https://drive.google.com/drive/u/1/folders/XXXX")
 }
 }

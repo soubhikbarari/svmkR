@@ -6,6 +6,9 @@
 \usage{
 list_targets()
 }
+\value{
+list of all named target population profiles available.
+}
 \description{
 Look up all of the target population profiles (i.e. specific variables and their marginal and joint distributions) available to weight your survey to.
 }

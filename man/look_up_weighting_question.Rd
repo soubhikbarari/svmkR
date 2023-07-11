@@ -9,6 +9,9 @@ look_up_weighting_question(survey.question)
 \arguments{
 \item{survey.question}{name of a survey question to map to a variable in some target distribution (see \code{list_targets()}).}
 }
+\value{
+dataframe of question-variable mappings associated with searched survey question.
+}
 \description{
 Find all information (e.g. applicable survey questions, applicable levels) for a potential weight-able survey question.
 }

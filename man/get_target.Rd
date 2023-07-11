@@ -9,6 +9,9 @@ get_target(name)
 \arguments{
 \item{id}{name of target population to read in (see \code{list_targets} for options).}
 }
+\value{
+list of dataframes associated with named target population profile.
+}
 \description{
 Read in a default target population (i.e. specific variables and their marginal and joint distributions) available through this package for you to weight your survey to.
 }

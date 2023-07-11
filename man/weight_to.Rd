@@ -14,7 +14,7 @@ weight_to(
 )
 }
 \arguments{
-\item{data}{input survey data frame.}
+\item{data}{input data frame of survey responses.}
 
 \item{target}{either name of target population (run \code{list_targets()} for options) or a list of dataframes corresponding to different population distributions to weight survey to.}
 
@@ -25,6 +25,9 @@ weight_to(
 \item{trim.weights}{percentiles to trim your weights (default are 0.01 and .99, or 1\% and 99\%); can specify either an upper percentile or both a lower and upper percentile.}
 
 \item{verbose}{output helpful progress and warning messages (recommended).}
+}
+\value{
+output contains (1) estimated weights and (2) summary of how weights will affect your data
 }
 \description{
 Generate statistical weights for your survey responses to better represent some population of interest.
