@@ -1,3 +1,6 @@
+# Dropbox? files
+*.DS_Store
+
 # History files
 .Rhistory
 .Rapp.history
@@ -31,6 +34,6 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
-
-# Raw data I used for comparison
-*.xlsx
+docs
+/doc/
+/Meta/

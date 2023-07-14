@@ -1,12 +1,10 @@
-# Returns the details of a survey, to cut down on API calls
-
-#' Title
+#' Download a survey's responses
 #'
 #' @param id ID number of survey to be fetched.
 #' @param oauth_token Your OAuth 2.0 token.
 #' By default, retrieved from \code{get_token()}.
 #'
-#' @return a survey object, which is a nested list containing info about the survey.
+#' @return A survey object of type \code{qdoc}, which is a nested list containing info about the survey and underlying questionnaire. Note that you can print this object for an informative summary like you can any other qdoc object. 
 #' @export
 #'
 #' @examples
@@ -22,24 +20,29 @@ fetch_survey_obj <- function(id,
   h <- standard_request_header(oauth_token)
   p <- list("v3", survey = "surveys", id = id, details = "details")
   
-  parsed_content <- sm_get(url = u, query = NULL, config = h, path = p)
+  svy_obj <- sm_get(url = u, query = NULL, config = h, path = p)
   
   message("+ Parsing questions 📋")
   families  = list()
   subtypes  = list()
   questions = list()
-  answers   = list()
   choices   = list()
-  pbar <- utils::txtProgressBar(min=0, max=length(parsed_content))
+  answers   = list()
+  
+  pbar <- utils::txtProgressBar(min=0, max=length(svy_obj))
   p <- 0
-  while (p < length(parsed_content$pages)) {
+  while (p < length(svy_obj$pages)) {
     p <- p + 1
-    page <- parsed_content$pages[[p]]
+    page <- svy_obj$pages[[p]]
     utils::setTxtProgressBar(pbar, p)
-    for (question in page$questions) {
-      questions[[question$id]] <- strip_tags(question$headings[[1]]$heading)
+    q <- 0
+    while (q < length(page$questions)) {
+      q <- q + 1
+      question <- page$questions[[q]]
+      
       families[[question$id]]  <- question$family
       subtypes[[question$id]]  <- question$subtype
+      questions[[question$id]] <- strip_tags(question$headings[[1]]$heading)
       choices[[question$id]]   <- c()
       
       if ("answers" %in% names(question)) {
@@ -58,13 +61,15 @@ fetch_survey_obj <- function(id,
           answers[[question$answers$other$id]] <- trimws(question$answers$other$text)
         }
       }
+      class(svy_obj$pages[[p]]$questions[[q]]) <- c(paste0("qdoc.", question$family), "list")
     }
   }
-  parsed_content$families   = families
-  parsed_content$subtypes   = subtypes
-  parsed_content$questions  = questions
-  parsed_content$answers    = answers
-  parsed_content$choices    = choices
+  svy_obj$families   = families
+  svy_obj$subtypes   = subtypes
+  svy_obj$questions  = questions
+  svy_obj$choices    = choices
+  svy_obj$answers    = answers
+  class(svy_obj) <- c("qdoc", class(svy_obj))
   
-  parsed_content
+  svy_obj
 }

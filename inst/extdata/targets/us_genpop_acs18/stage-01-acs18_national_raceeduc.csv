@@ -1,0 +1,33 @@
+"State 4","Race 2","Education 4","target"
+"Midwest","Non-White","College or more",0.01153924
+"Midwest","Non-White,"High school or less",0.01153924
+"Midwest","Non-White,"Post graduate degree",0.01153924
+"Midwest","Non-White","Some college",0.01153924
+"Midwest","White","College or more",0.032230115264411
+"Midwest","White,"High school or less",0.0599248782466733
+"Midwest","White,"Post graduate degree",0.017356760386696
+"Midwest","White","Some college",0.0527022168656666
+"Northeast","Non-White","College or more",0.01433766
+"Northeast","Non-White","High school or less",0.01433766
+"Northeast","Non-White","Post graduate degree",0.01433766
+"Northeast","Non-White","Some college",0.01433766
+"Northeast","White","College or more",0.0266679349099724
+"Northeast","White","High school or less",0.0413184688916066
+"Northeast","White","Post graduate degree",0.0187124967260023
+"Northeast","White","Some college",0.0313696318746566
+"South","Non-White","College or more",0.03848583
+"South","Non-White","High school or less",0.03848583
+"South","Non-White","Post graduate degree",0.03848583
+"South","Non-White","Some college",0.03848583
+"South","White","College or more",0.0457231054630959
+"South","White","High school or less",0.082586672810951
+"South","White","Post graduate degree",0.0267488385924075
+"South","White","Some college",0.0701338469324857
+"West","Non-White","College or more",0.02785697
+"West","Non-White","High school or less",0.02785697
+"West","Non-White","Post graduate degree",0.02785697
+"West","Non-White","Some college",0.02785697
+"West","White","College or more",0.0297347205236821
+"West","White","High school or less",0.0340536285740731
+"West","White","Post graduate degree",0.0178468655287925
+"West","White","Some college",0.0440110124480838

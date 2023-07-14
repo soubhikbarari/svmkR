@@ -1,9 +1,10 @@
 Package: svmkR
-Title: Tools to make, download, and analyze surveys using the SurveyMonkey API. Included are additional utilities used by the SurveyMonkey Research Insights Team for survey processing, weighting, and banner creation.
-Version: 0.2.2
+Title: Full-Stack Survey Research with SurveyMonkey
+Version: 1.0.0
 Authors@R: c(person("Soubhik", "Barari", role = c("aut", "cre"), email = "sbarari@momentive.ai"))
-Description: Provides access to the SurveyMonkey API for fetching survey results.
-Depends: R (>= 3.5.0)
+Description: Tools to make, download, and analyze surveys using the SurveyMonkey API (full-stack survey research). Included are additional utilities used by the SurveyMonkey Research Insights Team for survey processing, weighting, and banner creation.
+Depends: 
+    R (>= 4.0)
 Imports: 
     pbapply,
     googledrive (>= 2.0.0),
@@ -20,8 +21,9 @@ Imports:
     maditr,
     magrittr,
     tidyselect,
+    survey,
     rlang
-License: MIT + file LICENSE
+License: MIT LICENSE
 Url: https://github.com/soubhikbarari/svmkR
 Encoding: UTF-8
 LazyData: true
@@ -30,6 +32,7 @@ Suggests:
     httptest,
     knitr,
     rmarkdown,
-    testthat,
+    testthat (>= 3.0.0),
     withr
 VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -1,4 +1,4 @@
-#' Estimate the Kish design effect of using a set of weights.
+#' Estimate the Kish design effect of using a set of weights
 #' 
 #' The Kish design effect is how much the variance of a sample estimator 
 #' is expected to increase as a result of post-hoc sample weights.
@@ -14,7 +14,7 @@ design_eff <- function(weights, na.rm=F) {
   return(deff)
 }
 
-#' Estimate the Kish effective sample size of using a set of weights.
+#' Estimate the Kish effective sample size of using a set of weights
 #' 
 #' The Kish effective sample size is the reduced size of our sample given the increase in variance.
 #'
@@ -28,14 +28,14 @@ n_eff <- function(weights, na.rm=F) {
   return(deff)
 }
 
-#' Simulate the Margin of Error for an overall survey or a single question.
+#' Simulate the margin of error for an overall survey or a single question
 #' 
 #' For the overall survey: given weights and/or a sample size, the 
-#' Maximum Margin of Error gives us the upper bound on the margin of error for all y/n questions across 
+#' maximum margin of error gives us the upper bound on the margin of error for all y/n questions across 
 #' the entire survey -- by estimating it for a hypothetical y/n question with 50/50% split in the population 
 #' (the inherently most uncertain population estimand).
 #' 
-#' For a single question: given a vector of sample responses and/or weights, the Margin of Error
+#' For a single question: given a vector of sample responses and/or weights, the margin of error
 #' estimates the margin of error by simulating the sampling distribution.
 #'
 #' Estimates via simulation tend to be more conservative (larger) than 
@@ -56,21 +56,21 @@ n_eff <- function(weights, na.rm=F) {
 #' @export
 #' @examples
 #' 
-#' data(auto.evs)
+#' data(ev22)
 #' if (FALSE) { ## not run
 #'
 #' # Unweighted maximum margin of error
-#' simu_moe(n = nrow(auto.evs))
-#' simu_moe(weights = rep(1, nrow(auto.evs)))
+#' simu_moe(n = nrow(ev22))
+#' simu_moe(weights = rep(1, nrow(ev22)))
 #' 
 #' # Weighted maximum margin of error
-#' simu_moe(weights = auto.evs$weight_genpop)
+#' simu_moe(weights = ev22$weight_genpop)
 #' 
 #' # Unweighted margin of error for specific question
-#' simu_moe(x = auto.evs$ev_heard_1)
+#' simu_moe(x = ev22$ev_heard_1)
 #' 
 #' # Weighted margin of error for specific question
-#' auto.evs %>%
+#' ev22 %>%
 #'   filter(!is.na(weight_genpop)) %>%
 #'   simu_moe(x = ev_heard_1, weights = weight_genpop)
 #' }
@@ -85,20 +85,24 @@ simu_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
   if (!random) set.seed(100)
   
   if (is.null(x) & (!is.null(n) | !is.null(weights))) {
-    message("estimating Maximum Margin of Error")
+    # message("estimating maximum margin of error")
     # We are asking: what would the largest margin of error be for 
     # an estimated proportion -- i.e. the CI around a y/n question 
     # with an even split in the population? (this is the highest possible 
     # variance Bernoulli population distribution)    
   } else if (!is.null(x)) {
-    message("estimating Margin of Error given `x`")
+    # message("estimating margin of error given `x`")
   } else {
-    stop("must specify either `x` or `n`/`weights`")
+    stop("Must specify either `x` or `n`/`weights`")
   }
   
   n <- c(n, length(x), length(weights))[1]
   wt <- if (is.null(weights) | length(weights)==0) rep(1, n) else weights
   wt <- wt[!is.na(wt)]
+  
+  if (any(wt < 0)) {
+    stop("Weights must all be non-negative")
+  }
   
   if (is.null(x)) {
     # Create pseudo-population success trials
@@ -108,8 +112,8 @@ simu_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
   } else {
     x <- as.numeric(as.numeric(x) %in% c(1))
     x <- x[!is.na(x)]
-    if (length(x) != length(wt)) stop("length of `x` doesn't match up with `weights`")
-    if (length(x)==0 | length(wt)==0) stop("no non-null values in `x` or `weights`")
+    if (length(x) != length(wt)) stop("Length of `x` doesn't match up with `weights`")
+    if (length(x)==0 | length(wt)==0) stop("No non-null values in `x` or `weights`")
     pop.yes <- x
     pop.prob <- sum(x * wt)/sum(wt)
   }
@@ -129,14 +133,14 @@ simu_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
   return(err)
 }
 
-#' Estimate the Margin of Error (or "modelled error") for an overall survey or a single question.
+#' Estimate the margin of error for an overall survey or a single question
 #' 
 #' For the overall survey: given weights and/or a sample size, the 
-#' Maximum Margin of Error gives us the upper bound on the margin of error for all y/n questions across 
+#' maximum margin of error gives us the upper bound on the margin of error for all y/n questions across 
 #' the entire survey -- by estimating it for a hypothetical y/n question with 50/50% split in the population 
 #' (the inherently most uncertain population estimand).
 #' 
-#' For a single question: given a vector of sample responses and/or weights, the Margin of Error
+#' For a single question: given a vector of sample responses and/or weights, the margin of error
 #' estimates the margin of error by plugging into known quantiles of the asymptotic sampling distribution.
 #'
 #' Estimates from this asymptotic formula tend to be smaller than
@@ -156,21 +160,21 @@ simu_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
 #' @export
 #' @examples
 #' 
-#' data(auto.evs)
+#' data(ev22)
 #' if (FALSE) { ## not run
 #'
 #' # Unweighted maximum margin of error
-#' esti_moe(n = nrow(auto.evs))
-#' esti_moe(weights = rep(1, nrow(auto.evs)))
+#' esti_moe(n = nrow(ev22))
+#' esti_moe(weights = rep(1, nrow(ev22)))
 #' 
 #' # Weighted maximum margin of error
-#' esti_moe(weights = auto.evs$weight_genpop)
+#' esti_moe(weights = ev22$weight_genpop)
 #' 
 #' # Unweighted margin of error for specific question
-#' esti_moe(x = auto.evs$ev_heard_1)
+#' esti_moe(x = ev22$ev_heard_1)
 #' 
 #' # Weighted margin of error for specific question
-#' auto.evs %>%
+#' ev22 %>%
 #'   filter(!is.na(weight_genpop)) %>%
 #'   esti_moe(x = ev_heard_1, weights = weight_genpop)
 #' }
@@ -183,7 +187,7 @@ esti_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
   }
   
   if (is.null(x) & (!is.null(n) | !is.null(weights))) {
-    message("estimating Maximum Margin of Error")
+    # message("estimating maximum margin of error")
     # We are asking: what would the largest margin of error be for 
     # an estimated proportion -- i.e. the CI around a y/n question 
     # with an even split in the population? (this is the highest possible 
@@ -191,9 +195,7 @@ esti_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
   
     # For reference: 
     # https://www.pewresearch.org/internet/2010/04/27/methodology-85/    
-  } else if (!is.null(x)) {
-    message("estimating Margin of Error given `x`")
-  } else {
+  } else if (is.null(x)) {
     stop("must specify either `x` or `n`/`weights`")
   }
   
@@ -201,6 +203,9 @@ esti_moe <- function(.data = NULL, weights = NULL, n = NULL, x = NULL, conf = 0.
   wt <- if (is.null(weights) | length(weights)==0) rep(1, n) else weights
   wt <- wt[!is.na(wt)]
 
+  if (any(wt < 0)) {
+    stop("weights must all be non-negative")
+  }  
   
   n <- length(wt)
   deff <- (n*sum(wt^2))/(sum(wt)^2)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis.R
 \name{design_eff}
 \alias{design_eff}
-\title{Estimate the Kish design effect of using a set of weights.}
+\title{Estimate the Kish design effect of using a set of weights}
 \usage{
 design_eff(weights, na.rm = F)
 }

@@ -7,16 +7,6 @@ standard_request_header = function(token) {
   )
 }
 
-#' POST request for svmkR API
-#'
-#' Will always set the \code{soubhikbarari/svmkR} repo as the user agent
-#'
-#' @param url character, url to send request to
-#' @param body character, request body for POST call.
-#' @param config see \code{?httr::config}, \link[httr]{config}, for full details.
-#' Additional configuration settings such as http additional headers.
-#' @param ... additional argument passed to \code{httr::POST} \link[httr]{POST}.
-#' @export
 sm_post = function(url, body, config, ...) {
   out = httr::POST(
     url,
@@ -25,7 +15,6 @@ sm_post = function(url, body, config, ...) {
     httr::user_agent("http://github.com/soubhikbarari/svmkR"),
     ...
   )
-  
   remaining_request_message(out)
   reset_time_message(out)
   
@@ -37,17 +26,6 @@ sm_post = function(url, body, config, ...) {
   }
 }
 
-#' GET request for svmkR API
-#'
-#' Will always set the \code{soubhikbarari/svmkR} repo as the user agent
-#'
-#' @param url character, url to send request to
-#' @param query character, components of the url to change for request arguments,
-#'  see also \code{?httr::modify_url}, \link[httr]{modify_url}.
-#' @param config see \code{?httr::config}, \link[httr]{config}, for full details.
-#' Additional configuration settings such as http additional headers.
-#' @param ... additional argument passed to \code{httr::GET} \link[httr]{GET}.
-#' @export
 sm_get = function(url, query, config, ...) {
   out = httr::GET(
     url,
@@ -56,7 +34,6 @@ sm_get = function(url, query, config, ...) {
     httr::user_agent("http://github.com/soubhikbarari/svmkR"),
     ...
   )
-  
   remaining_request_message(out)
   reset_time_message(out)
   
