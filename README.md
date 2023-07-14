@@ -34,6 +34,8 @@ devtools::install_github("soubhikbarari/svmkR@dev")
 
 * [Christopher Remmel](https://github.com/calremmel) (contributor)
 
+Authors of the `surveymonkey` package, of which `svmkR` was forked from and re-factored include:
+
 * [Thomas Leeper](https://github.com/leeper) (previous version creator/maintainer)
 
 * [Sam Firke](https://github.com/sfirke) (previous version creator/maintainer)

@@ -64,7 +64,6 @@ fetch_survey_obj <- function(id,
       class(svy_obj$pages[[p]]$questions[[q]]) <- c(paste0("qdoc.", question$family), "list")
     }
   }
-  svy_obj$qdoc       = qdoc
   svy_obj$families   = families
   svy_obj$subtypes   = subtypes
   svy_obj$questions  = questions
