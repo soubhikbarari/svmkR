@@ -13,15 +13,13 @@ You can:
 * Create statistical **weights** adjust your survey to a target population.
 * Create presentable SurveyMonkey-style **banners** for polls.
 
-**Note: This is the development branch, where new features for the coming release are being implemented and tested.**
-
 ## Installation
 
-To install the development version of `svmkR` from GitHub:
+To install the production version of `svmkR` from GitHub:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("soubhikbarari/svmkR@dev")
+devtools::install_github("soubhikbarari/svmkR")
 ```
 
 ## Authors
