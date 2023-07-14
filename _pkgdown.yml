@@ -41,11 +41,12 @@ reference:
   contents:
   - ends_with("moe")
   - ends_with("eff")
-- title: Code variables in your survey
-  desc: Functions to code variables (e.g. demographics) in your survey.
+- title: Process your survey
+  desc: Functions to process your survey data.
   contents:
   - contains("code_")
   - contains("demo")
+  - contains("skip_rules")
 - title: Weight your survey
   desc: Functions to weight your survey.
   contents:
