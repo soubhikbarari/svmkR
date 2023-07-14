@@ -2,7 +2,7 @@
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R](https://img.shields.io/badge/R-4.0+-blue)](https://img.shields.io/badge/R-4.0+-blue)
-[![Unit Tests](https://github.com/soubhikbarari/svmkR/actions/workflows/test-coverage.yaml/badge.svg)]
+[![Unit Tests](https://github.com/soubhikbarari/svmkR/actions/workflows/test-coverage.yaml/badge.svg)
 
 This package provides a suite of tools to work with SurveyMonkey surveys.
 
