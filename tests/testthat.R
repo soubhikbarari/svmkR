@@ -7,6 +7,8 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
+library(httptest)
+library(expss)
 library(svmkR)
 
 test_check("svmkR")

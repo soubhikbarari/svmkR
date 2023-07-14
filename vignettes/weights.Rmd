@@ -5,9 +5,13 @@ output:
     toc: true
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{weights}
+  %\VignetteIndexEntry{How to weight your survey}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-TODO (link to primer blog post when it's up)
+As a survey researcher, your goal is most likely to make inferences about a particular target population. As such, you want to make sure that your survey responses are demographically representative of that target population. Even if you can guarantee this in some way at the design stage of your project for some variables (e.g. gender, education, region), you're still likely to have skews in your responses on other variables (e.g. race, age, party) -- in ways that skew the responses to your key questions!
+
+To better understand how and why weighting works - along with some examples - we'd recommend this [short guide on weighting surveys](https://www.surveymonkey.com/curiosity/a-guide-to-weighting-surveys-for-market-research/) written by the SurveyMonkey Research Insights Team. 
+
+You can get started weighting your own surveys using the `weight_to()` function. See `vignette("svmkR")` for further context and an example of how `weight_to()` can be used.

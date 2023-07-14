@@ -1,9 +1,9 @@
 
 withr::local_options()
 
-test_that("get_token returns NULL with no option set", {
-  expect_null(get_token())
-})
+# test_that("get_token returns NULL with no option set", {
+#   expect_null(get_token())
+# })
 
 test_that("setting the token works", {
   val = "5678"

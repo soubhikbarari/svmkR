@@ -12,9 +12,6 @@
 #'
 #' @return A survey response dataframe with NAs distinguished between "Not applicable" responses from "No answer" responses. 
 #' @export
-#'
-#' @examples
-#' # TODO
 find_skip_rules <- function(data,
                             interactive = TRUE,
                             skip_rule_val = NA,
