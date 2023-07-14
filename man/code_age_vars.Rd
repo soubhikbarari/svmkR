@@ -4,20 +4,23 @@
 \alias{code_age_vars}
 \title{Code demographic variables in responses}
 \usage{
-code_age_vars(data, verbose = TRUE)
+code_age_vars(data, append = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{data}{Input data frame of survey responses.}
+
+\item{append}{If TRUE, append to existing dataframe otherwise return new variables in a fresh dataframe.}
 
 \item{verbose}{Print helpful messages.}
 }
 \value{
 Survey data frame with new (or updated) columns corresponding to (if discoverable) respondents' \bold{age category and generation}: \itemize{
+ \item \code{age}: integer age in years 
  \item \code{age3}: 3-point age category
- \item \code{age4gen}: 4-point age category corresponding to generation 
  \item \code{age6}: 6-point age category
+ \item \code{age_gen}: 4-point age category corresponding to generation (according to Pew Research Center's now-retired classification)
 }
 }
 \description{
-Given a dataframe of survey responses, look for standard SurveyMonkey demographic questions and code/recode them into new variables that are more banner-, plot-, and analysis-friendly. Use \code{code_std_demo_vars()} to perform all standard demographic recodes, or select the specific function you need.
+Given a dataframe of survey responses, look for standard SurveyMonkey demographic questions and code/recode them into new variables that are more banner-, plot-, and analysis-friendly. Use \code{code_std_demo_vars()} to perform all standard demographic recodes, or select the specific function you need. Run \code{std_demo_vars()} to return the full index of SurveyMonkey's standard demographic variables.
 }

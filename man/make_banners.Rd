@@ -6,6 +6,7 @@
 \usage{
 make_banners(
   data,
+  include.no.answer = TRUE,
   row.vars,
   col.vars,
   weight.var = NULL,
@@ -17,6 +18,8 @@ make_banners(
 }
 \arguments{
 \item{data}{input data frame of survey responses.}
+
+\item{include.no.answer}{if TRUE, include "No answer" as a cell in cross-tabs, otherwise remove / treat as NA.}
 
 \item{row.vars}{list of column names in \code{data} to put in the banner rows; any multi-response variables can be specified either as a regex string (e.g. \code{"var_*"}) or as a nested vector of all of the option columns (e.g. \code{c("var_1", "var_2",...)}).}
 

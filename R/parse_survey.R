@@ -30,7 +30,7 @@ parse_survey <- function(surv_obj,
   if (!(col_names %in% c("id","name"))) {
     stop("Must pass either 'id' or 'name' to col_names.")
   }
-  
+
   if (!(col_fill %in% c(TRUE,"name"))) {
     stop("Must pass either TRUE or 'name' to col_fill.")
   }
@@ -47,6 +47,8 @@ parse_survey <- function(surv_obj,
   
   surv_obj$col_fill <- col_fill
   
+  surv_obj$col_fill <- col_fill
+  
   labels <- list()
   recordsList <- pbapply::pblapply(1:length(respondents), function(r) {
     response <- respondents[[r]]
@@ -60,6 +62,7 @@ parse_survey <- function(surv_obj,
       for (q in 1:length(page$questions)) {
         question <- page$questions[[q]]
         question_id <- question$id
+        # if (startsWith(question_id, "86524344")) stop("")
         family <- surv_obj$families[[question_id]]
         if (family == "matrix") {
           out <- process_matrix(surv_obj, question)
@@ -118,6 +121,7 @@ parse_survey <- function(surv_obj,
   records <- dplyr::bind_rows(recordsList)
   records$survey_id <- as.numeric(surv_obj$id)
   
+
   for (q in rev(names(surv_obj$questions))) {
     if (col_names == "id") {
       cols <- colnames(records)[grepl(q, colnames(records))]
@@ -126,7 +130,11 @@ parse_survey <- function(surv_obj,
     }
     if (length(cols) > 0) {
       records <- dplyr::relocate(records, cols)
+
     }
+    if (length(cols) > 0) {
+      records <- dplyr::relocate(records, cols)
+    }    
   }
   
   records <- dplyr::relocate(records, c("collector_id",
@@ -141,11 +149,12 @@ parse_survey <- function(surv_obj,
                                         "email_address",
                                         "ip_address"))
   
-  
+
   colnames(records) <- gsub("  ", " ", colnames(records))
   names(labels) <- gsub("  "," ", names(labels))
   
   message("Levelling columns 🗂")
+
   for (level.var in names(surv_obj$choices)) {
     if (col_names == "id") {
       col.levels <- unique(surv_obj$choices[[level.var]])

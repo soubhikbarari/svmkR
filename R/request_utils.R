@@ -15,7 +15,6 @@ sm_post = function(url, body, config, ...) {
     httr::user_agent("http://github.com/soubhikbarari/svmkR"),
     ...
   )
-
   remaining_request_message(out)
   reset_time_message(out)
   
@@ -35,7 +34,6 @@ sm_get = function(url, query, config, ...) {
     httr::user_agent("http://github.com/soubhikbarari/svmkR"),
     ...
   )
-
   remaining_request_message(out)
   reset_time_message(out)
   
@@ -49,11 +47,11 @@ sm_get = function(url, query, config, ...) {
 
 remaining_request_message = function(response) {
   if(length(response$headers$`x-ratelimit-app-global-day-remaining`>0)) {
-  message(paste0(
-    "You have ",
-    response$headers$`x-ratelimit-app-global-day-remaining`,
-    " requests left today before you hit the limit"
-  ))
+    message(paste0(
+      "You have ",
+      response$headers$`x-ratelimit-app-global-day-remaining`,
+      " requests left today before you hit the limit"
+    ))
   } else {
     warning("Could not determine API request limit")
   }
@@ -61,13 +59,13 @@ remaining_request_message = function(response) {
 
 reset_time_message = function(response, frequency = 20) {
   if(length(response$headers$`x-ratelimit-app-global-day-remaining`>0)) {
-  if (as.numeric(response$headers$`x-ratelimit-app-global-day-remaining`) %% frequency == 0) {
-    message(paste0(
-      "Your daily request limit will reset in ",
-      response$headers$`X-Ratelimit-App-Global-Day-Reset`,
-      " seconds"
-    ))
-  }
+    if (as.numeric(response$headers$`x-ratelimit-app-global-day-remaining`) %% frequency == 0) {
+      message(paste0(
+        "Your daily request limit will reset in ",
+        response$headers$`X-Ratelimit-App-Global-Day-Reset`,
+        " seconds"
+      ))
+    }
   } else {
     warning("Could not determine API request limit")
   }

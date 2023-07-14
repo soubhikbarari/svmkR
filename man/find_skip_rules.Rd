@@ -30,6 +30,3 @@ Given a dataframe of survey responses, reverse engineer skip rules based on comp
 \details{
 Note: if \code{skip_rule_val} or \code{no_answer_val} are set to character strings, the corresponding factor variables (in the relevant question columns) will be expanded via the \code{forcats} library to include those values as levels.
 }
-\examples{
-# TODO
-}
