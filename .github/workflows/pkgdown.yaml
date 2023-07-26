@@ -45,4 +45,4 @@ jobs:
         with:
           clean: true
           branch: gh-pages
-          folder: site
+          folder: docs
