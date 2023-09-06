@@ -12,7 +12,7 @@ You can:
 * Create and upload a survey from a **questionnaire** document.
 * Browse and **download** surveys in your account.
 * Conduct basic **analysis** (e.g. margin of error) on your surveys.
-* Create statistical **weights** adjust your survey to a target population.
+* Create statistical survey **weights** (via raking) to better represent a target population.
 * Create presentable SurveyMonkey-style **banners** for polls.
 
 ## Installation
