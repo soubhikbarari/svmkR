@@ -24,6 +24,10 @@ To install the production version of `svmkR` from GitHub:
 devtools::install_github("soubhikbarari/svmkR")
 ```
 
+## Source
+
+The source code for `svmkR` is currently hosted on [GitHub](https://github.com/soubhikbarari/svmkR).
+
 ## Authors
 
 * [Soubhik Barari](https://github.com/soubhikbarari) (creator/maintainer)
