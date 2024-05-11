@@ -51,6 +51,17 @@ fetch_survey_obj <- function(id,
             answers[[row$id]] <- trimws(row$text)
           }      
         }
+        if ("cols" %in% names(question$answers)) {
+           for (col in question$answers$cols) {
+                  answers[[col$id]] <- trimws(col$text)
+                  if ("choices" %in% names(col)){
+                        for(choice in col$choices){
+                              answers[[choice$id]] <- trimws(choice$text)
+                              choices[[question$id]] <- c(choices[[question$id]], answers[[choice$id]])
+                        }
+                  }
+            }
+         }
         if ("choices" %in% names(question$answers)) {
           for (choice in question$answers$choices) {
             answers[[choice$id]] <- trimws(choice$text)

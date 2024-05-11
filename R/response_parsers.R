@@ -30,6 +30,12 @@ process_matrix <- function(surv_obj, question) {
         answer_text = TRUE
       out_named[[question_text]] <- answer_text
       out_id[[col_id]] <- answer_text
+    } else if (subtype == 'menu') {
+          question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$row_id]], " - ", surv_obj$answers[[answer$col_id]])
+          col_id = paste0(question_id, "_", answer$row_id, "_", answer$col_id)
+          answer_text = surv_obj$answers[[answer$choice_id]]
+          out_named[[question_text]] <- answer_text
+          out_id[[col_id]] <- answer_text
     } else {
       question_text = paste0(surv_obj$questions[[question_id]], " - ", surv_obj$answers[[answer$row_id]])
       col_id = paste0(question_id, "_", answer$row_id)
