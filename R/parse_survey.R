@@ -47,8 +47,6 @@ parse_survey <- function(surv_obj,
   
   surv_obj$col_fill <- col_fill
   
-  surv_obj$col_fill <- col_fill
-  
   labels <- list()
   recordsList <- pbapply::pblapply(1:length(respondents), function(r) {
     response <- respondents[[r]]
@@ -74,6 +72,9 @@ parse_survey <- function(surv_obj,
           out <- process_single_choice(surv_obj, question)
         }
         if (family == "open_ended") {
+          out <- process_open_ended(surv_obj, question)
+        }
+        if (family == "demographic") {
           out <- process_open_ended(surv_obj, question)
         }
         if (family == "datetime") {
