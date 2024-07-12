@@ -30,6 +30,16 @@ The source code for `svmkR` is currently hosted on [GitHub](https://github.com/s
 
 ## Authors
 
+Authors of the original `surveymonkey` package and its downstream replicas, of which `svmkR` was forked from and re-factored include:
+
+* [Thomas Leeper](https://github.com/leeper) (creator/maintainer)
+
+* [Sam Firke](https://github.com/sfirke) (creator/maintainer)
+
+* [Matt Roumaya](https://github.com/mattroumaya) (creator/maintainer)
+
+Authors and contributors to `svmkR` were primarily SurveyMonkey employees and collaborators from 2022 to 2023 and include:
+
 * [Soubhik Barari](https://github.com/soubhikbarari) (creator/maintainer)
 
 * [Zoe Padgett](https://github.com/znpadgett) (contributor)
@@ -38,10 +48,3 @@ The source code for `svmkR` is currently hosted on [GitHub](https://github.com/s
 
 * [Christopher Remmel](https://github.com/calremmel) (contributor)
 
-Authors of the `surveymonkey` package, of which `svmkR` was forked from and re-factored include:
-
-* [Thomas Leeper](https://github.com/leeper) (creator/maintainer)
-
-* [Sam Firke](https://github.com/sfirke) (creator/maintainer)
-
-* [Matt Roumaya](https://github.com/mattroumaya) (creator/maintainer)
