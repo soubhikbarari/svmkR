@@ -1,3 +1,7 @@
+# svmkR 1.1
+
+* Added bug fix by [@felippelazar](https://github.com/soubhikbarari/svmkR/pull/27) to fix processing of drop-down menu type questions.
+
 # svmkR v1.0
 
 * **NEW:** Weight surveys using available population targets. Ex: 
