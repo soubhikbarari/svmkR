@@ -1,6 +1,6 @@
 Package: svmkR
 Title: Full-Stack Survey Research with SurveyMonkey
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(person("Soubhik", "Barari", role = c("aut", "cre"), email = "sbarari@momentive.ai"))
 Description: Tools to make, download, and analyze surveys using the SurveyMonkey API (full-stack survey research). Included are additional utilities used by the SurveyMonkey Research Insights Team for survey processing, weighting, and banner creation.
 Depends: 
