@@ -115,11 +115,11 @@ parse_survey <- function(surv_obj,
     record$ip_address <- response$ip_address
     
     if(length(response$custom_variables) > 0){
-      custom_vars <- response$custom_variables
+      custom_vars <<- response$custom_variables
       record <- c(record, lapply(names(custom_vars), function(name) {
         setNames(list(custom_vars[[name]]), name)
       }))
-    } else {custom_vars <- NULL}
+    } else {custom_vars <<- NULL}
     
     return(dplyr::bind_cols(record))
   })
@@ -158,6 +158,7 @@ parse_survey <- function(surv_obj,
   
   if(!is.null(custom_vars)){
     records <- dplyr::relocate(records, all_of(names(custom_vars)), .after = "ip_address")
+    rm(custom_vars)
   }
 
   colnames(records) <- gsub("  ", " ", colnames(records))
