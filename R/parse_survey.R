@@ -114,6 +114,13 @@ parse_survey <- function(surv_obj,
     record$email_address <- response$email_address
     record$ip_address <- response$ip_address
     
+    if(length(response$custom_variables) > 0){
+      custom_vars <- response$custom_variables
+      record <- c(record, lapply(names(custom_vars), function(name) {
+        setNames(list(custom_vars[[name]]), name)
+      }))
+    } else {custom_vars <- NULL}
+    
     return(dplyr::bind_cols(record))
   })
   
@@ -121,7 +128,6 @@ parse_survey <- function(surv_obj,
   
   records <- dplyr::bind_rows(recordsList)
   records$survey_id <- as.numeric(surv_obj$id)
-  
 
   for (q in rev(names(surv_obj$questions))) {
     if (col_names == "id") {
@@ -138,7 +144,7 @@ parse_survey <- function(surv_obj,
     }    
   }
   
-  records <- dplyr::relocate(records, c("collector_id",
+  records <- dplyr::relocate(records, all_of(c("collector_id",
                                         "collection_mode",
                                         "survey_id",
                                         "response_id",
@@ -148,8 +154,11 @@ parse_survey <- function(surv_obj,
                                         "first_name",
                                         "last_name",
                                         "email_address",
-                                        "ip_address"))
+                                        "ip_address")))
   
+  if(!is.null(custom_vars)){
+    records <- dplyr::relocate(records, all_of(names(custom_vars)), .after = "ip_address")
+  }
 
   colnames(records) <- gsub("  ", " ", colnames(records))
   names(labels) <- gsub("  "," ", names(labels))
