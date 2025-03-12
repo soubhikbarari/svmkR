@@ -92,14 +92,48 @@ process_single_choice <- function(surv_obj, question) {
               id = make_output_id(col_id=col_id, answer_text=answer_text)))
 }
 
+# process_open_ended <- function(surv_obj, question) {
+#   question_id = question$id
+#   col_id = question_id
+#   family = surv_obj$families[[question_id]]  
+#   answer_text = question$answers[[1]]$text
+#   question_text = surv_obj$questions[[question_id]]
+#   return(list(name = make_output_named(question_text=question_text, answer_text=answer_text),
+#               id = make_output_id(col_id=col_id, answer_text=answer_text)))
+# }
+
 process_open_ended <- function(surv_obj, question) {
   question_id = question$id
   col_id = question_id
-  family = surv_obj$families[[question_id]]  
-  answer_text = question$answers[[1]]$text
+  family = surv_obj$families[[question_id]]
+  subtype = surv_obj$subtypes[[question_id]]
+  
   question_text = surv_obj$questions[[question_id]]
-  return(list(name = make_output_named(question_text=question_text, answer_text=answer_text),
-              id = make_output_id(col_id=col_id, answer_text=answer_text)))
+  
+  if(subtype == "numerical"){
+    out_named <- list()
+    out_id <- list()
+    
+    for(answer in question$answers){
+      #answer <- question$answers[[1]]
+      col_id = paste0(question_id, "_", answer$row_id)
+      question_text <- paste0(question_text, " - ", surv_obj$answers[[answer$row_id]])
+      answer_text = answer$text
+      
+      out_id[[col_id]] <- answer_text
+      out_named[[question_text]] <- answer_text
+      
+      return(list(name = out_named, id = out_id))
+    }
+    
+  }else{
+    answer_text = question$answers[[1]]$text
+    
+    
+    return(list(name = make_output_named(question_text=question_text, answer_text=answer_text),
+                id = make_output_id(col_id=col_id, answer_text=answer_text)))
+  }
+  
 }
 
 process_datetime <- function(surv_obj, question) {

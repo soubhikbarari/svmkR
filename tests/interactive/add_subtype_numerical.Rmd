@@ -1,3 +1,197 @@
+
+
+```{r}
+
+load_all()
+library(tidyverse)
+#Survey name
+survey_name <- "NRFSP Food Safety Manager Validation Survey"
+survey_nickname <- "NRFSP FSM"
+
+#Find survey
+surveys <- browse_surveys(200)
+
+#Get ID
+survey_id <- surveys %>% 
+  filter(title == survey_name) %>% 
+  pull(id)
+
+#Collect, parse, and clean
+survey_df <-   
+  fetch_survey_obj(as.numeric(survey_id))
+
+results <- survey_df %>%
+  parse_survey(col_names = "name")
+
+surv_obj <- survey_df
+
+```
+
+```{r}
+#source debug_helpers.R
+family_data <- summarize_survey_families(surv_obj)
+family_data_types <- analyze_survey_families(surv_obj)
+
+```
+
+```{r}
+family_data_types %>% 
+  filter(family == "single_choice" & subtype == "menu")
+
+
+family_data_types %>% 
+  filter(family == "single_choice" & subtype == "vertical")
+
+family_data_types %>% 
+  filter(family == "multiple_choice" & subtype == "vertical")
+
+family_data_types %>% 
+  filter(family == "single_choice" & subtype == "single")
+family_data_types %>% 
+  filter(family == "matrix" & subtype == "single")
+
+family_data_types %>% 
+  filter(family == "open_ended" & subtype == "essay")
+```
+```{r}
+
+items <- list(open_numeric = "228210658",
+     open_text = "225780190",
+     matrix_single = "225780193" ,
+     single_choice_vertical = "225780212",
+     single_choice_menu = "228211697"
+)
+
+
+respondents <- get_responses(surv_obj$id, oauth_token = get_token())
+return_question <- list()
+
+for(i in 1:length(items)){
+  
+  item_id <-  items[[i]]
+  item_category <-  names(items[i])
+
+for(r in 1:length(respondents)){
+  response <- respondents[[r]]
+  pages <- respondents[[r]]$pages
+  record <- list()
+    for (p in 1:length(pages)) {
+      page <- pages[[p]]
+      if (length(page$questions) == 0) {
+        next
+      }
+      for (q in 1:length(page$questions)) {
+        question <- page$questions[[q]]
+        question_id <- question$id
+        if(question_id == item_id){
+          return_question[[item_category]] <- question
+          break
+        }else{
+          next
+        }
+      }
+    }
+}
+
+}
+
+
+
+question_id <- return_question$open_numeric[[1]]
+question <- return_question$open_numeric
+#question <- return_question
+
+#NEW
+
+#Added subtype nuerical to open_ended
+process_open_ended <- function(surv_obj, question) {
+  question_id = question$id
+  col_id = question_id
+  family = surv_obj$families[[question_id]]
+  subtype = surv_obj$subtypes[[question_id]]
+  
+  question_text = surv_obj$questions[[question_id]]
+  
+  if(subtype == "numerical"){
+    out_named <- list()
+    out_id <- list()
+    
+    for(answer in question$answers){
+    #answer <- question$answers[[1]]
+    col_id = paste0(question_id, "_", answer$row_id)
+    question_text <- paste0(question_text, " - ", surv_obj$answers[[answer$row_id]])
+    answer_text = answer$text
+    
+    out_id[[col_id]] <- answer_text
+    out_named[[question_text]] <- answer_text
+    
+    return(list(name = out_named, id = out_id))
+    }
+    
+  }else{
+    answer_text = question$answers[[1]]$text
+    
+    return(list(name = make_output_named(question_text=question_text,
+                                         answer_text=answer_text),
+                id = make_output_id(col_id=col_id, 
+                                    answer_text=answer_text)))
+  }
+  
+}
+
+
+
+
+# 
+# 
+# process_single_choice(surv_obj, return_question$single_choice_vertical)
+# 
+# outmatrix <- process_matrix(surv_obj, return_question$matrix_single)
+# 
+# process_open_ended(surv_obj, return_question$open_text)
+# 
+# out <- process_open_ended(surv_obj, return_question$open_text)
+# 
+# out2 <- process_open_ended(surv_obj, return_question$open_numeric)
+
+
+
+
+results %>% select(starts_with("Please"))
+```
+
+
+
+```{r}
+
+
+# If you find a question that looks like Multiple Textboxes, examine it directly
+if (nrow(textbox_questions) > 0) {
+  # Take the first match as an example
+  example_id <- "228210658"
+  
+  # Find the question in the survey object
+  for (page in surv_obj$pages) {
+    for (question in page$questions) {
+      if (question$id == example_id) {
+        # Print full question details for analysis
+        print(question)
+        break
+      }
+    }
+  }
+}
+
+
+```
+
+
+```{r}
+
+
+
+```
+```{r}
 #' Take a survey object and parse it into a tidy dataframe.
 #'
 #' @param surv_obj A survey, the result of a call to \code{fetch_survey_obj}.
@@ -18,7 +212,7 @@
 #' @export
 parse_survey <- function(surv_obj, 
                          oauth_token = get_token(),
-                         col_names = "id",
+                         col_names = "name",
                          col_fill = TRUE,
                          ...
 ) {
@@ -38,7 +232,7 @@ parse_survey <- function(surv_obj,
   message("Getting responses 🎣")
   
   time_start <- Sys.time()
-  respondents <- get_responses(surv_obj$id, oauth_token = oauth_token, ...)
+  respondents <- get_responses(surv_obj$id, oauth_token = oauth_token)
   time_end <- Sys.time()
   time_taken <- time_end - time_start
   print(time_taken)
@@ -187,18 +381,17 @@ parse_survey <- function(surv_obj,
   labels$email_address <- "Respondent's email address"
   labels$ip_address <- "Respondent's IP address"
   
-  # if (col_names == "id") {
-  #   labels <- labels[names(labels) %in% colnames(records)]
-  #   records <- records %>%
-  #     labelled::set_variable_labels(.labels = labels)
-  # }
-  
   if (col_names == "id") {
     labels <- labels[names(labels) %in% colnames(records)]
-    records <- records %>%
-      labelled::set_variable_labels(.labels = labels)
+    # # Convert list to named character vector
+    # labels <- unlist(labels)
+    # records <- records %>%
+    #   labelled::set_variable_labels(.labels = labels)
+    
+    labels <- labels[names(labels) %in% colnames(records)]
+    # Use direct variable label assignment
+     labelled::var_label(records) <- labels
   }
-  
   
   if (sample(c(1,2,3,4,5),1)==1) {
     message("\nDONE 🐵\n") 
@@ -215,4 +408,7 @@ parse_survey <- function(surv_obj,
   message(sprintf("%d rows x %d columns", nrow(records), ncol(records)))
   return(records)
 }
+
+
+```
 
