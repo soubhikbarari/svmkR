@@ -5,6 +5,8 @@
 [![Unit Tests](https://github.com/soubhikbarari/svmkR/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/soubhikbarari/svmkR/actions/workflows/test-coverage.yaml/badge.svg)
 [![Build Site](https://github.com/soubhikbarari/svmkR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/soubhikbarari/svmkR/actions/workflows/pkgdown.yaml)
 
+*Note: As of 2023, this package is no longer actively being maintained.*
+
 This package provides a suite of tools to work with SurveyMonkey surveys.
 
 You can:
