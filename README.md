@@ -1,7 +1,7 @@
 # svmkR: Full-stack survey research with SurveyMonkey in R
 
 [![R](https://img.shields.io/badge/R-4.0+-blue)](https://img.shields.io/badge/R-4.0+-blue)
-[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Project Status: Inactive](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 [![Unit Tests](https://github.com/soubhikbarari/svmkR/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/soubhikbarari/svmkR/actions/workflows/test-coverage.yaml/badge.svg)
 [![Build Site](https://github.com/soubhikbarari/svmkR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/soubhikbarari/svmkR/actions/workflows/pkgdown.yaml)
 
